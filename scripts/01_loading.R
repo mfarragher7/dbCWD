@@ -51,7 +51,7 @@ unique(general$midascheck)
 #save
 temp1 = plyr::count(general$lake)
 temp = plyr::count(general$midascheck)
-  
+   
 general = general %>% 
   mutate(lake = replace(lake, midas==9961,'annabessacook')) %>% 
   mutate(lake = replace(lake, midas==3828,'berry')) %>% 

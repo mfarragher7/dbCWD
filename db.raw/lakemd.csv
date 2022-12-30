@@ -1,0 +1,30 @@
+﻿lake,basin,label,cwdcode,midas,station,town,depth_ft,depth_m,lat,long
+Annabessacook,Annabessacook (South),ANNA,KAA,9961,1,Monmouth,45,13.7,44°15'43,69°59'20
+Annabessacook,Annabessacook (North),ANNA,KAE,9961,2,Winthrop,22,6.7,44°17'21 ,69°58'32
+Berry,Berry,BERR,KB,3828,1,Winthrop,30,9.1,44°20'07, 70°01'19
+Buker,Buker,BUKE,KBU,5242,1,Litchfield,31,9.4,44°10'00, 69°58'43
+Carlton,Carlton,CARL,KI,5310,1,Readfield,62,19,44°20'49, 69°54'29
+Cobbossee,Cobbossee (South),COBB,KCS,5236,1,Monmouth,100,30,44°15'03,69°56'34
+Cobbossee,Cobbossee (North),COBB,KCN,5236,2,Winthrop,65,19.8,44°19'02,69°53'00
+Cochnewagon,Cochnewagon,COCH,KCH,3814,1,Monmouth,29,8.9,44°13'56,70°02'46
+Desert,Desert,DESE,KDS,5265,1,Mt. Vernon,36,11,44°26'54,69°59'28
+Dexter,Dexter,DEXT,KD ,3830,1,Wayne,26,7.9,44°18'58,70°01'54
+Horseshoe,Horseshoe,HORS,KH,5252,1,W. Gardiner,19,5.7,44°12'12,69°53'35
+Hutchinson,Hutchinson,HUTC,KHT,5304,1,Manchester,28,8.6,44°15'54,69°52'18
+Jamies,Jamies,JAMI,KJS,5302,1,Manchester,80,24.5,44°16'59,69°51'24
+Jimmy,Jimmy,JIMM,KJ ,5244,1,Litchfield,32,9.8,44°09'08 ,69°59'39
+Kezar,Kezar,KEZA,KK,5316,1,Winthrop,25,7.8,44°18'56,69°54'59
+Little Cobbossee,Little Cobbossee,COBB,KLC,8065,1,Winthrop,33,10,44°19'42,69°53'04
+Little Purgatory,Little Purgatory,PURG,KLP,5250,1,Litchfield,19,5.8,44°12'52,69°56'48
+Loon,Loon,LOON,KLO,5246,1,Litchfield,26,7.9,44°09'14,69°57'21
+Lower Narrows,Lower Narrows,NARR,KLN,103,1,Winthrop,104,31.7,44°17'20,69°57'05
+Maranacook,Maranacook (South),MARA,KMS,5312,1,Winthrop,124,37.8,44°19'15,69°58'04
+Maranacook,Maranacook (North),MARA,KMN,5312,2,Readfield,40,12.2,44°22'51,69°57'29
+Pleasant,Pleasant,PLEA,KP,5254,1,Richmond,30,9.2,44°09'07,69°52'41
+Upper Pleasant,Upper Pleasant,PLEA,KPU,5254,3,Richmond,13,4,44°08'13,69°53'16
+Sand,Sand,SAND,KS,5238,1,Monmouth,87,26.5,44°10'39,69°58'18
+Shed,Shed,SHED,KSH,5300,1,Manchester,9,2.8,44°21'41,69°52'35
+Torsey,Torsey,TORS,KT,5307,1,Mt. Vernon,42,12.8,44°25'43,69°58'47
+Upper Narrows,Upper Narrows,NARR,KUN,98,1,Winthrop,61,18.6,44°18'36,69°56'23
+Wilson,Wilson,WILS,KWN,3832,1,Monmouth,44,13.4,44°17'04,70°02'46
+Woodbury,Woodbury,WOOD,KWD,5240,1,Litchfield,62,18.9,44°11'38,69°57'04

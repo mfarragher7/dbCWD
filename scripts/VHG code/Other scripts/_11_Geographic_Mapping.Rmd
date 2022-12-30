@@ -1,0 +1,245 @@
+---
+title: "Geographic Mapping"
+author: "Lundy Stowe"
+date: "October 15, 2018"
+output: html_document
+---
+
+```{r pre_setup}
+#install.packages(c("devtools", "digest", "lubridate", "tmaptools", "maps", "ggmap", "ggrepel", leaflet"), dependencies = TRUE)
+#library(devtools)
+#devtools::install_github("dkahle/ggmap", dependencies = TRUE)
+```
+
+Great Data Carpentry Lesson: [Introduction to Geospatial Raster and Vector Data with R](https://datacarpentry.org/r-raster-vector-geospatial/)
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+library(tidyverse)
+library(lubridate)
+library(maps)
+library(tmaptools)
+library(leaflet)
+library(ggmap)
+base_dir = "/Users/lundystowe/Desktop/DataScience1/"
+```
+
+## Files Required for Today.
+
+```
+maine_population_2018.csv
+gapminder.csv
+unemployment_county_bls_2018.csv
+```
+
+----------
+
+There are three kinds of maps that we'll make in this class:
+
+1. Maps with road or terrain background and point using [ggmap](https://github.com/dkahle/ggmap);
+2. Maps with countries or states or counties colored by some value (called choropleths);
+3. Interactive maps using [leaflet](https://rstudio.github.io/leaflet/).
+
+Each map type is useful for different purposes. There are also many other R tools for creating maps. I've chosen a subset to introduce you to some of the ways of plotting geographic data.
+
+While R can do many of the same tasks that a Geographic Information System (GIS) system can do, we're not going to cover a complete set of GIS functions. That would be a whole class. However, now that you have some R chops, you can explore these things yourself. See [Geocomputation with R](https://geocompr.robinlovelace.net/) for more information.
+
+## Plotting Tiles with ggmap
+
+**NOTE: Google Maps used to provide free map tiles. A year or two ago, they changed this to a pay service. You can get $300 of map tiles for "free" if you register with Google and give them your credit card. I didn't feel that I could ask students to do this. So we'll be using Stamen map tiles. If you want to use the Google tiles for your own work, see the [ggmap page](https://github.com/dkahle/ggmap) for instructions.**
+
+When you want to create a map using ggmap(), you first need to know the geographic bounding box of the area that you want to map. The bounding box contains two sets of (x,y) coordinate that define a rectangle. For some areas, you can look them up by their name (or geocode) using [geocode_OSM](https://www.rdocumentation.org/packages/tmaptools/versions/2.0-2/topics/geocode_OSM) from the [tmaptools](https://www.rdocumentation.org/packages/tmaptools/versions/2.0-2) package.
+
+```{r lookup_boston}
+# tmaptools::geocode_OSM()
+boston_bb   = geocode_OSM('Boston MA')
+dushanbe_bb = geocode_OSM('dushanbe tajikistan')
+mdi_bb      = geocode_OSM('Mount Desert Island ME')
+```
+
+You can also use [bboxfinder](http://bboxfinder.com/) to identify the bounding box for your area of interest.
+
+Once you have the bounding box (or bb) information, you get the map tiles using [get_stamenmap()](https://www.rdocumentation.org/packages/ggmap/versions/3.0.0/topics/get_stamenmap). You pass in a bounding box containing 4 points as a numeric vector. Then you pass in a zoom level between 0 and 18. Lower numbers are more zoomed out. You'll have to play with the zoom to get the right level. I usually start at 10.
+
+```{r plot_mdi,fig.width=10}
+#mdi2$bbox = c(xmin = -68.614578, ymin = 44.049880, xmax = -67.858622, ymax = 44.454219)
+mdi_map = get_stamenmap(as.numeric(mdi_bb$bbox), zoom = 12)
+```
+
+Then, once you've gotten the map tiles from the tile server, you make your map. I would try to avoid querying the tile server over and over. Once you have your tiles, make a second code block in which you refine your maps.
+
+```{r plot_map,fig.width=10,fig.height=10}
+ggmap(mdi_map)
+```
+
+Add some towns on MDI.
+
+```{r add_towns}
+towns = geocode_OSM(str_c(c("Bass Harbor", "Southwest Harbor", "Northeast Harbor", "Tremont", "Seal Harbor", "Somesville", "Town Hill", "Bar Harbor"), ",ME"))
+kable(towns)
+```
+
+```{r plot_mdi_with_towns,fig.width=10,fig.height=10}
+ggmap(mdi_map) +
+  geom_point(data = towns, mapping = aes(lon, lat))
+```
+
+```{r plot_mdi_with_town_names,fig.width=10,fig.height=10}
+ggmap(mdi_map) +
+  geom_point(data = towns, mapping = aes(lon, lat)) +
+  geom_text(data = towns, mapping = aes(lon, lat, label = query), nudge_y = 0.005)
+```
+
+There are many different kinds of maps served out by the Stamen tile server. You can request these using the 'maptype' argument to [get_stamenmap()](https://www.rdocumentation.org/packages/ggmap/versions/3.0.0/topics/get_stamenmap). I have listed the options below. I haven't explored all of them, but feel free to play around with them.
+
+* terrain
+* terrain-background
+* terrain-labels
+* terrain-lines
+* toner
+* toner-2010
+* toner-2011
+* toner-background
+* toner-hybrid
+* toner-labels
+* toner-lines
+* toner-lite
+* watercolor
+
+```{r mdi_toner_lite,fig.height=10,fig.width=10}
+get_stamenmap(as.numeric(mdi_bb$bbox), zoom = 12, maptype = 'toner-lite') %>%
+  ggmap()
+```
+
+We can also create a map of the State of Maine. Note that we need to lower the zoom value or else we'll get thousands of tiles.
+
+```{r maine_map,fig.width=10,fig.height=10}
+maine_bb = geocode_OSM('Maine')
+
+get_stamenmap(as.numeric(maine_bb$bbox), zoom = 8, maptype = 'terrain') %>%
+  ggmap()
+```
+
+Let's add some color or sizing to the points by plotting towns with their populations.
+
+```{r read_maine_pop}
+maine_pop = read_csv(str_c(base_dir, 'data/maine_population_2018.csv'))
+kable(maine_pop)
+```
+
+```{r get_maine_town_lat_lon}
+maine_towns = geocode_OSM(str_c(pull(maine_pop, City), ' ME')) %>%
+                rename(City = query) %>%
+                mutate(City = str_replace(City, ' ME', ''))
+maine_pop = full_join(maine_pop, maine_towns, by = 'City')
+```
+
+
+```{r maine_pop,fig.width=10,fig.height=10}
+get_stamenmap(as.numeric(maine_bb$bbox), zoom = 8, maptype = 'toner-lite') %>%
+  ggmap() +
+    geom_point(data = maine_pop, aes(lon, lat, color = Population), size = 2) +
+#    geom_text(data = maine_pop, aes(lon, lat, label = City), nudge_x = 0.5) +
+    scale_color_gradient(low = 'purple', high = 'yellow')
+```
+
+
+
+```{r maine_pop2,fig.width=10,fig.height=10}
+get_stamenmap(as.numeric(maine_bb$bbox), zoom = 8, maptype = 'toner-lite') %>%
+  ggmap() +
+    geom_point(data = maine_pop, aes(lon, lat, size = Population))
+```
+
+## Making Choropleth Maps
+
+A [choropleth map](https://en.wikipedia.org/wiki/Choropleth_map) is map in which areas are shaded or colored by some value for each region.
+
+The R [maps](https://www.rdocumentation.org/packages/maps/versions/3.3.0) package contains mapping polygons for the world, the USA, Italy, France and New Zealand. It also has polygons and lists for US states and counties. I wish that there was better support for all countries, but this is what R has right now. The [maps](https://www.rdocumentation.org/packages/maps/versions/3.3.0) package also contains names of world cities (world.cities) and country abbreviations (iso3166).
+
+Let's read in the gapminder population data.
+
+```{r read_gapminder}
+gm = read_csv(str_c(base_dir, 'data/gapminder.csv'))
+```
+
+```{r world_map_pop,fig.height=10,fig.width=10}
+world = map_data('world')
+
+gm %>%
+  filter(year == 2017) %>%
+  ggplot() +
+    borders('world', colour = 'gray40', size = 0.5, fill = 'grey80') +
+    geom_map(map = world, aes(map_id = country, fill = pop), colour = 'gray40', size = 0.5) +
+    coord_map(xlim = c(-180, 180), ylim = c(-60, 85))
+```
+
+We can also make plots for US States. Here, we're going to get the percentage of Republican votes for each state from the `maps` package.
+
+```{r get_votes}
+votes = votes.repub %>%
+          as.data.frame() %>%
+          rownames_to_column(var = 'state') %>%
+          gather(year, pct_repub, -state, convert = TRUE)
+```
+
+```{r state_choropleth}
+states = map_data('state')
+
+votes %>%
+  filter(year == 1976) %>%
+  mutate(state = str_to_lower(state)) %>%
+  ggplot() +
+#    borders('state', colour = 'gray40', size = 0.5, fill = 'grey80') +
+    geom_map(map = states, aes(map_id = state, fill = pct_repub), colour = 'gray40', size = 0.5) +
+    expand_limits(x = states$long, y = states$lat) +
+    coord_map() +
+    scale_fill_gradient(low = "blue", high = "red")
+```
+
+Finally, we can make maps of counties within a State in the US. We're going to use unemployment data for US counties from the `maps` package.
+
+```{r get_unemployment}
+unemp = read_csv(str_c(base_dir, 'data/unemployment_county_bls_2018.csv'))
+```
+
+```{r county_choropleth}
+counties = map_data('county') %>%
+              rename('state'  = region,
+                     'region' = subregion)
+
+bbox = c(-77.871094, 39.774769, -65.742188, 48.458352)
+
+unemp %>%
+  mutate(county = str_to_lower(county)) %>%
+  ggplot() +
+    geom_map(map = counties, aes(map_id = county, fill = rate), colour = 'gray40', size = 0.2) +
+    geom_polygon(data = hancock, aes(long, lat), fill = NA, color = "red", size = 1) +
+    coord_map(xlim = bbox[c(1, 3)], ylim = bbox[c(2, 4)]) +
+    scale_fill_gradientn(colors = c('#ffffcc','#ffeda0','#fed976','#feb24c','#fd8d3c',
+                                    '#fc4e2a','#e31a1c','#bd0026','#800026'))
+```
+
+## Leaflet
+
+[Leaflet](https://rstudio.github.io/leaflet/) is a large and very powerful mapping package. It also has a lot of overhead. In this class, I'll show you the basics of using `leaflet` and leave more complex operations for you to explore.
+
+```{r leaflet_istanbul}
+moscow_bb  = geocode_OSM('Moscow Russia')
+kremlin_bb = geocode_OSM('Kremlin Moscow Russia')
+
+leaflet() %>%
+  addTiles() %>%  # Add default OpenStreetMap map tiles
+  setView(lng = as.numeric(moscow_bb$coords[1]), 
+          lat = as.numeric(moscow_bb$coords[2]),
+          zoom = 12) %>%
+  addMarkers(lng = kremlin_bb$coords[1], 
+             lat = kremlin_bb$coords[2], 
+             popup = 'Kremlin')
+```
+
+
+
+
+

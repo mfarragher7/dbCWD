@@ -1,0 +1,267 @@
+
+
+
+# OLD VERSION - AUGUST 2020
+#JORDAN POND
+#jp chlorophyll 2020-02-21
+#c3
+plot.jp.c3.chla.20feb21 = ggplot(filter(full.c3, lakedate=='JP_2020-02-21'), aes(x=Depth, y=Chlorophyll_a)) + 
+  geom_point(shape=1, size=2) +  
+  stat_smooth(method = "loess",  size = 1.5, color='chartreuse3', se=F) +
+  scale_x_reverse(limits=c(27,1), n.breaks=6) +
+  ylim(0,165) +
+#add chl plot
+  geom_point(filter(full.samples, lakedate=='JP_2020-02-21'), aes(x=Depth, y=chla_ugpl, color=chla_ugpl), 
+            position=position_nudge(y=150), size=7) + 
+  scale_color_gradient2(limits=c(0,2), midpoint=1, high="green", mid="gold", low="red") +
+#format
+  labs(color="Chl a (ug/L)", x="Depth (m)", y="Chlorophyll RFU") +
+  theme_classic() + 
+  ggtitle("Jordan Pond Chlorophyll - 21 Feb 2020") + 
+  coord_flip() 
+plot.jp.c3.chla.20feb21
+
+#jp chlorophyll 2020-06-13
+#c3
+plot.jp.c3.chla.20jun13 = ggplot(jp.c3.20jun13, aes(x=Depth, y=Chlorophyll_a)) + 
+  geom_point(shape=1, size=2) +  
+  stat_smooth(method = "loess",  size = 1.5, color='chartreuse3', se=F) +
+  scale_x_reverse(limits=c(27,1), n.breaks=6) +
+  ylim(0,165) +
+#add chl plot
+  geom_point(data=jp.chl.20jun13, aes(x=Depth, y=chla_ugpl, color=chla_ugpl), 
+             position=position_nudge(y=150), size=7) + 
+  scale_color_gradient2(limits=c(0,2), midpoint=1, high="green", mid="gold", low="red") +
+#format
+  labs(color="Chl a (ug/L)", x="Depth (m)", y="Chlorophyll RFU") +
+  theme_classic() + 
+  ggtitle("Jordan Pond Chlorophyll  - 13 June 2020") + 
+  coord_flip() 
+plot.jp.c3.chla.20jun13
+
+#jp chlorophyll 2020-06-28
+#c3
+plot.jp.c3.chla.20jun28 = ggplot(jp.c3.20jun28, aes(x=Depth, y=Chlorophyll_a)) + 
+  geom_point(shape=1, size=2) +  
+  stat_smooth(method = "loess",  size = 1.5, color='chartreuse3', se=F) +
+  scale_x_reverse(limits=c(27,1), n.breaks=6) +
+  ylim(0,165) +
+#add chl plot
+  geom_point(data=jp.chl.20jun28, aes(x=Depth, y=chla_ugpl, color=chla_ugpl), 
+             position=position_nudge(y=150), size=7) + 
+  scale_color_gradient2(limits=c(0,2), midpoint=1, high="green", mid="gold", low="red") +
+#format
+  labs(color="Chl a (ug/L)", x="Depth (m)", y="Chlorophyll RFU") +
+  theme_classic() + 
+  ggtitle("Jordan Pond Chlorophyll  - 28 June 2020") + 
+  coord_flip() 
+plot.jp.c3.chla.20jun28
+
+#combined - all C3 dates and 3 extracted chl dates
+plot.jp.comb.c3.chla.three_dates = grid.arrange(plot.jp.c3.chl,
+                                                plot.jp.c3.chla.20feb21,
+                                                plot.jp.c3.chla.20jun13,
+                                                plot.jp.c3.chla.20jun28)
+plot.jp.comb.c3.chla.three_dates
+
+
+
+
+#SEAL COVE
+#sc chlorophyll 2020-02-21
+#c3
+plot.sc.c3.chla.20feb21 = ggplot(sc.c3.20feb21, aes(x=Depth, y=Chlorophyll_a)) + 
+  geom_point(shape=1, size=2) +  
+  stat_smooth(method = "loess",  size = 1.5, color='chartreuse3', se=F) +
+  scale_x_reverse(limits=c(12,1), n.breaks=10) +
+  ylim(0,500) +
+#add chl plot
+  geom_point(data=sc.chl.20feb21, aes(x=Depth, y=chla_ugpl, color=chla_ugpl), 
+             position=position_nudge(y=475), size=7) + 
+  scale_color_gradient2(limits=c(0,4), midpoint=2, high="green", mid="gold", low="red") +
+#format
+  labs(color="Chl a (ug/L)", x="Depth (m)", y="Chlorophyll RFU") +
+  theme_classic() + 
+  ggtitle("Seal Cove Pond Chlorophyll - 21 Feb 2020") + 
+  coord_flip() 
+plot.sc.c3.chla.20feb21
+
+#sc chlorophyll 2020-03-25
+#c3
+plot.sc.c3.chla.20mar25 = ggplot(sc.c3.20mar25, aes(x=Depth, y=Chlorophyll_a)) + 
+  geom_point(shape=1, size=2) +  
+  stat_smooth(method = "loess",  size = 1.5, color='chartreuse3', se=F) +
+  scale_x_reverse(limits=c(12,1), n.breaks=10) +
+  ylim(0,500) +
+#add chl plot
+  geom_point(data=sc.chl.20mar25, aes(x=Depth, y=chla_ugpl, color=chla_ugpl), 
+             position=position_nudge(y=475), size=7) + 
+  scale_color_gradient2(limits=c(0,4), midpoint=2, high="green", mid="gold", low="red") +
+#format
+  labs(color="Chl a (ug/L)", x="Depth (m)", y="Chlorophyll RFU") +
+  theme_classic() + 
+  ggtitle("Seal Cove Pond Chlorophyll - 25 March 2020") + 
+  coord_flip() 
+plot.sc.c3.chla.20mar25
+
+
+#sc chlorophyll 2020-06-28
+#c3
+plot.sc.c3.chla.20jun28 = ggplot(sc.c3.20jun28, aes(x=Depth, y=Chlorophyll_a)) + 
+  geom_point(shape=1, size=2) +  
+  stat_smooth(method = "loess",  size = 1.5, color='chartreuse3', se=F) +
+  scale_x_reverse(limits=c(12,1), n.breaks=10) +
+  ylim(0,500) +
+#add chl plot
+  geom_point(data=sc.chl.20jun28, aes(x=Depth, y=chla_ugpl, color=chla_ugpl), 
+             position=position_nudge(y=475), size=7) + 
+  scale_color_gradient2(limits=c(2,8), midpoint=5, high="green", mid="gold", low="red") +
+#format
+  labs(color="Chl a (ug/L)", x="Depth (m)", y="Chlorophyll RFU") +
+  theme_classic() + 
+  ggtitle("Seal Cove Pond Chlorophyll - 28 June 2020") + 
+  coord_flip() 
+plot.sc.c3.chla.20jun28
+
+#combined
+plot.sc.comb.c3.chla.three_dates = grid.arrange(plot.sc.c3.chl,
+                                                plot.sc.c3.chla.20feb21,
+                                                plot.sc.c3.chla.20mar25,
+                                                plot.sc.c3.chla.20jun28)
+plot.sc.comb.c3.chla.three_dates
+
+
+
+#BUBBLE POND
+#bb chlorophyll 2020-05-26
+#c3
+plot.bb.c3.chla.20may26 = ggplot(bb.c3.20may26, aes(x=Depth, y=Chlorophyll_a)) + 
+  geom_point(shape=1, size=2) +  
+  stat_smooth(method = "loess",  size = 1.5, color='chartreuse3', se=F) +
+  scale_x_reverse(limits=c(10,1), n.breaks=10) +
+  ylim(0,400) +
+#add chl plot
+  geom_point(data=bb.chl.20may26, aes(x=Depth, y=chla_ugpl, color=chla_ugpl), 
+             position=position_nudge(y=360), size=7) + 
+  scale_color_gradient2(limits=c(0,4), midpoint=2, high="green", mid="gold", low="red") +
+#format
+  labs(color="Chl a (ug/L)", x="Depth (m)", y="Chlorophyll RFU") +
+  theme_classic() + 
+  ggtitle("Bubble Pond Chlorophyll - 26 May 2020") + 
+  coord_flip() 
+plot.bb.c3.chla.20may26
+
+#bb chlorophyll 2020-06-13
+#c3
+plot.bb.c3.chla.20jun13 = ggplot(bb.c3.20jun13, aes(x=Depth, y=Chlorophyll_a)) + 
+  geom_point(shape=1, size=2) +  
+  stat_smooth(method = "loess",  size = 1.5, color='chartreuse3', se=F) +
+  scale_x_reverse(limits=c(10,1), n.breaks=10) +
+  ylim(0,400) +
+#add chl plot
+  geom_point(data=bb.chl.20jun13, aes(x=Depth, y=chla_ugpl, color=chla_ugpl), 
+             position=position_nudge(y=360), size=7) + 
+  scale_color_gradient2(limits=c(0,4), midpoint=2, high="green", mid="gold", low="red") +
+#format
+  labs(color="Chl a (ug/L)", x="Depth (m)", y="Chlorophyll RFU") +
+  theme_classic() + 
+  ggtitle("Bubble Pond Chlorophyll - 13 June 2020") + 
+  coord_flip() 
+plot.bb.c3.chla.20jun13
+
+#bb chlorophyll 2020-07-02
+#c3
+plot.bb.c3.chla.20jul02 = ggplot(bb.c3.20jul02, aes(x=Depth, y=Chlorophyll_a)) + 
+  geom_point(shape=1, size=2) +  
+  stat_smooth(method = "loess",  size = 1.5, color='chartreuse3', se=F) +
+  scale_x_reverse(limits=c(10,1), n.breaks=10) +
+  ylim(0,400) +
+#add chl plot
+  geom_point(data=bb.chl.20jul02, aes(x=Depth, y=chla_ugpl, color=chla_ugpl), 
+             position=position_nudge(y=360), size=7) + 
+  scale_color_gradient2(limits=c(0,4), midpoint=2, high="green", mid="gold", low="red") +
+#format
+  labs(color="Chl a (ug/L)", x="Depth (m)", y="Chlorophyll RFU") +
+  theme_classic() + 
+  ggtitle("Bubble Pond Chlorophyll - 02 July 2020") + 
+  coord_flip() 
+plot.bb.c3.chla.20jul02
+
+#combined
+plot.bb.comb.c3.chla.three_dates = grid.arrange(plot.bb.c3.chl,
+                                                plot.bb.c3.chla.20may26,
+                                                plot.bb.c3.chla.20jun13,
+                                                plot.bb.c3.chla.20jul02)
+plot.bb.comb.c3.chla.three_dates
+
+
+
+
+#WITCH HOLE
+#wh chlorophyll 2020-02-25
+#c3
+plot.wh.c3.chla.20feb25 = ggplot(wh.c3.20feb25, aes(x=Depth, y=Chlorophyll_a)) + 
+  geom_point(shape=1, size=2) +  
+  stat_smooth(method = "loess",  size = 1.5, color='chartreuse3', se=F) +
+  scale_x_reverse(limits=c(9,1), n.breaks=9) +
+  ylim(0,500) +
+#add chl plot
+  geom_point(data=wh.chl.20feb25, aes(x=Depth, y=chla_ugpl, color=chla_ugpl), 
+             position=position_nudge(y=475), size=7) + 
+  scale_color_gradient2(limits=c(1,6), midpoint=3.5, high="green", mid="gold", low="red") +
+#format
+  labs(color="Chl a (ug/L)", x="Depth (m)", y="Chlorophyll RFU") +
+  theme_classic() + 
+  ggtitle("Witch Hole Pond Chlorophyll - 25 Feb 2020") + 
+  coord_flip() 
+plot.wh.c3.chla.20feb25
+
+#wh chlorophyll 2020-05-26
+#c3
+plot.wh.c3.chla.20may26 = ggplot(wh.c3.20may26, aes(x=Depth, y=Chlorophyll_a)) + 
+  geom_point(shape=1, size=2) +  
+  stat_smooth(method = "loess",  size = 1.5, color='chartreuse3', se=F) +
+  scale_x_reverse(limits=c(9,1), n.breaks=9) +
+  ylim(0,500) +
+#chl plot
+  geom_point(data=wh.chl.20may26, aes(x=Depth, y=chla_ugpl, color=chla_ugpl), 
+             position=position_nudge(y=475), size=7) + 
+  scale_color_gradient2(limits=c(1,6), midpoint=3.5, high="green", mid="gold", low="red") +
+#format
+  labs(color="Chl a (ug/L)", x="Depth (m)", y="Chlorophyll RFU") +
+  theme_classic() + 
+  ggtitle("Witch Hole Pond Chlorophyll - 26 May 2020") + 
+  coord_flip() 
+plot.wh.c3.chla.20may26
+
+#wh chlorophyll 2020-07-02
+#c3
+plot.wh.c3.chla.20jul02 = ggplot(wh.c3.20jul02, aes(x=Depth, y=Chlorophyll_a)) + 
+  geom_point(shape=1, size=2) +  
+  stat_smooth(method = "loess",  size = 1.5, color='chartreuse3', se=F) +
+  scale_x_reverse(limits=c(9,1), n.breaks=9) +
+  ylim(0,500) +
+#chl plot
+  geom_point(data=wh.chl.20jul02, aes(x=Depth, y=chla_ugpl, color=chla_ugpl), 
+             position=position_nudge(y=475), size=7) + 
+  scale_color_gradient2(limits=c(1,6), midpoint=3.5, high="green", mid="gold", low="red") +
+#format
+  labs(color="Chl a (ug/L)", x="Depth (m)", y="Chlorophyll RFU") +
+  theme_classic() + 
+  ggtitle("Witch Hole Pond Chlorophyll - 02 July 2020") + 
+  coord_flip() 
+plot.wh.c3.chla.20jul02
+
+#combined
+plot.wh.comb.c3.chla.three_dates = grid.arrange(plot.wh.c3.chl,
+                                                plot.wh.c3.chla.20feb25,
+                                                plot.wh.c3.chla.20may26,
+                                                plot.wh.c3.chla.20jul02)
+plot.wh.comb.c3.chla.three_dates
+
+
+
+
+
+
+

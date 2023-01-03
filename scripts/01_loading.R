@@ -53,22 +53,22 @@ temp1 = plyr::count(general$lake)
 temp = plyr::count(general$midascheck)
    
 general = general %>% 
-  mutate(lake = replace(lake, midas==9961,'annabessacook')) %>% 
-  mutate(lake = replace(lake, midas==3828,'berry')) %>% 
-  mutate(lake = replace(lake, midas==5242,'buker')) %>% 
-  mutate(lake = replace(lake, midas==5310,'carlton')) %>% 
-  mutate(lake = replace(lake, midas==5236,'cobbossee')) %>% 
-  mutate(lake = replace(lake, midas==8065,'little cobbossee')) %>% 
-  mutate(lake = replace(lake, midas==3814,'cochnewagon')) %>% 
+  mutate(lake = replace(lake, midas==9961, 'annabessacook')) %>% 
+  mutate(lake = replace(lake, midas==3828, 'berry')) %>% 
+  mutate(lake = replace(lake, midas==5242, 'buker')) %>% 
+  mutate(lake = replace(lake, midas==5310, 'carlton')) %>% 
+  mutate(lake = replace(lake, midas==5236, 'cobbossee')) %>% 
+  mutate(lake = replace(lake, midas==8065, 'little cobbossee')) %>% 
+  mutate(lake = replace(lake, midas==3814, 'cochnewagon')) %>% 
   mutate(lake = replace(lake, midas==5265, 'desert')) %>%
-  mutate(lake = replace(lake, midas==3830,'dexter')) %>% 
-  mutate(lake = replace(lake, midas==5252,'horseshoe')) %>% 
-  mutate(lake = replace(lake, midas==5304,'hutchinson')) %>% 
-  mutate(lake = replace(lake, midas==5302,'jamies')) %>% 
-  mutate(lake = replace(lake, midas==5244,'jimmy')) %>% 
-  mutate(lake = replace(lake, midas==5316,'kezar')) %>% 
-  mutate(lake = replace(lake, midas==5246,'loon')) %>% 
-  mutate(lake = replace(lake, midas==5312,'maranacook')) %>% 
+  mutate(lake = replace(lake, midas==3830, 'dexter')) %>% 
+  mutate(lake = replace(lake, midas==5252, 'horseshoe')) %>% 
+  mutate(lake = replace(lake, midas==5304, 'hutchinson')) %>% 
+  mutate(lake = replace(lake, midas==5302, 'jamies')) %>% 
+  mutate(lake = replace(lake, midas==5244, 'jimmy')) %>% 
+  mutate(lake = replace(lake, midas==5316, 'kezar')) %>% 
+  mutate(lake = replace(lake, midas==5246, 'loon')) %>% 
+  mutate(lake = replace(lake, midas==5312, 'maranacook')) %>% 
   mutate(lake = replace(lake, midas==98,'narrows upper')) %>% 
   mutate(lake = replace(lake, midas==103,'narrows lower')) %>% 
   mutate(lake = replace(lake, midas==5254,'pleasant')) %>% 

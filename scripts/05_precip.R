@@ -110,8 +110,17 @@ ggplot(precip.annual.jj,
 
 
 
+#2022 cumulative monthly precip
+
+p22 = preciplong %>% filter(Year==2022)
+p22$cumulative.precip = cumsum(p22$precip.in)
 
 
+
+ggplot(p22, aes(x=date, y=cumulative.precip)) +
+  geom_col() +
+  scale_x_date(date_labels="%b", date_breaks='1 month')
+  
 
 
 

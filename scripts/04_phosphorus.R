@@ -23,8 +23,8 @@ library(ggpubr)
 
 
 
-#load data
-tp = read.csv('~/CWD/dbCWD/library/tp.cwd.csv', header=T)
+#load data from cwd
+tp = read.csv('https://raw.githubusercontent.com/mfarragher7/dbCWD/main/library/tp.cwd.csv',header=T)
 
 
 #pleasant pond ########

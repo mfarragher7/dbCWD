@@ -13,6 +13,57 @@ library(rLakeAnalyzer)
 
 
 
+
+
+#PLEASANT ########
+#1985 in particular
+
+#tp from DEP
+tp.dep = read.csv('https://raw.githubusercontent.com/mfarragher7/dbCWD/main/library/tp.dep.csv',header=T)
+tpdep.pleas = tp.dep %>% 
+  filter(lake=='pleasant' & year==1985)
+
+#chl from DEP
+chl.dep = read.csv('https://raw.githubusercontent.com/mfarragher7/dbCWD/main/library/chlorophyll.dep.csv',header=T)
+chldeppleas = chl.dep %>% 
+  filter(lake=='pleasant' & year==1985)
+
+
+#survey
+surveydep = read.csv('https://raw.githubusercontent.com/mfarragher7/dbCWD/main/library/survey.dep.csv',h=T)
+sdeppleas = surveydep %>% 
+  filter(lake=='pleasant' & year==1985)
+
+
+#profiles
+profilesdep = read.csv('https://raw.githubusercontent.com/mfarragher7/dbCWD/main/library/profiles.dep.csv',h=T)
+prodeppleas = profilesdep %>% 
+  filter(lake=='pleasant' & year==1985)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #DB Q's #########
 #dbCWD queries :)
 
@@ -118,5 +169,23 @@ ggplot(filter(year > 1989), aes(x=date, y=alk)) +
   geom_point() +
   geom_line() +
   scale_x_date(date_labels='%Y')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

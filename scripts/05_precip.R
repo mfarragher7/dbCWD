@@ -9,7 +9,7 @@ library(ggplot2)
 
 
 #load data
-precip = read.csv('~/GitHub/dbCWD/db.raw/db.cwd/winthrop.precip_1976-2022.csv')
+precip = read.csv('https://raw.githubusercontent.com/mfarragher7/dbCWD/main/db.raw/db.cwd/winthrop.precip_1976-2022.csv',h=T)
 str(precip)
 
 p.summary = precip %>% 

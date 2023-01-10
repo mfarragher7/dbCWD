@@ -12,7 +12,7 @@ library(rLakeAnalyzer)
 library(ggpubr)
 
 
-pro = read.csv("~/CWD/dbCWD/library/profiles.dep.summary.csv", header=T)
+pro = read.csv("https://raw.githubusercontent.com/mfarragher7/dbCWD/main/library/profiles.dep.summary.csv", header=T)
 
 
 #format dates

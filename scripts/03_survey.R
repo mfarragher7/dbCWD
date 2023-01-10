@@ -14,8 +14,8 @@ library(ggpubr)
 
 
 #load data
-survey = read.csv('~/CWD/dbCWD/library/survey.dep.csv', header=T)
-                  
+surveydep = read.csv('https://raw.githubusercontent.com/mfarragher7/dbCWD/main/library/survey.dep.csv',h=T)
+
 
 
 

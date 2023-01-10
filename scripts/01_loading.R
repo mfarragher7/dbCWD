@@ -19,7 +19,7 @@ library(ggplot2)
 library(rLakeAnalyzer)
 
 #metadata
-md = read.csv("~/CWD/dbCWD/db.raw/lakemd.csv")
+md = read.csv("‪C:\Users\CWD2-Matt\OneDrive\Database\/CWD/dbCWD/db.raw/lakemd.csv")
 
 
 #General ######

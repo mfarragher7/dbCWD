@@ -19,14 +19,14 @@ library(ggplot2)
 library(rLakeAnalyzer)
 
 #metadata
-md = read.csv("‪C:\Users\CWD2-Matt\OneDrive\Database\/CWD/dbCWD/db.raw/lakemd.csv")
+md = read.csv("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/db.raw/lakemd.csv")
 
 
 #General ######
 #GENERAL SURVEY INFO and SECCHI
 
 #load df
-general = read.csv("~/CWD/dbCWD/db.raw/db.dep/CWD_GENERAL.csv")
+general = read.csv("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/db.raw/db.dep/CWD_GENERAL.csv")
 
 #lowercase everything and rename cols
 general = general %>% 
@@ -156,7 +156,7 @@ unique(general$comments)
 general = general %>% select(-midascheck)
 
 #save in library
-write.csv(general, "~/CWD/dbCWD/library/survey.dep.csv", row.names = F)
+write.csv(general, "C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/library/survey.dep.csv", row.names = F)
 
 
 
@@ -167,7 +167,7 @@ write.csv(general, "~/CWD/dbCWD/library/survey.dep.csv", row.names = F)
 
 
 #Profiles ######
-profiles = read.csv("~/CWD/dbCWD/db.raw/db.dep/CWD_DO_TEMP_PROFILES.csv")
+profiles = read.csv("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/db.raw/db.dep/CWD_DO_TEMP_PROFILES.csv")
 str(profiles)
 
 #lowercase everything and rename cols
@@ -285,7 +285,7 @@ summary(profiles$oxygen)
 
 
 #save
-write.csv(profiles, "~/CWD/dbCWD/library/profiles.dep.csv", row.names = F)
+write.csv(profiles, "C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/library/profiles.dep.csv", row.names = F)
 
 
 
@@ -375,7 +375,7 @@ spro$month = lubridate::month(spro$date)
 temp = plyr::count(spro$sampleid)
 
 
-write.csv(spro, "~/CWD/dbCWD/library/profiles.dep.summary.csv", row.names = F)
+write.csv(spro, "C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/library/profiles.dep.summary.csv", row.names = F)
 
 
 
@@ -384,7 +384,7 @@ write.csv(spro, "~/CWD/dbCWD/library/profiles.dep.summary.csv", row.names = F)
 #compare with volume weighted epi/hypo temps once i get bathymetry data
 
 #load wilson bathy
-wb = read.csv("~/CWD/dbCWD/db.raw/bathy.wilson.csv")
+wb = read.csv("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/db.raw/bathy.wilson.csv")
 
 #summary table for just wilson
 subp = profiles %>% filter(lake=='wilson')            
@@ -478,7 +478,7 @@ ggplot(pbjtest, aes(x=date, y=temp, color=layer)) +
 
 
 #Phos DEP ######
-phos = read.csv("~/CWD/dbCWD/db.raw/db.dep/CWD_PHOS.csv")
+phos = read.csv("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/db.raw/db.dep/CWD_PHOS.csv")
 
 #lowercase everything and rename cols
 phos = phos %>% 
@@ -583,7 +583,7 @@ phos$month = lubridate::month(phos$date)
 #save
 phos = phos %>% select(-midascheck)
 
-write.csv(phos, "~/CWD/dbCWD/library/tp.dep.csv", row.names = F)
+write.csv(phos, "C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/library/tp.dep.csv", row.names = F)
 
 
 
@@ -596,7 +596,7 @@ write.csv(phos, "~/CWD/dbCWD/library/tp.dep.csv", row.names = F)
 
 #Phos CWD ########
 
-phos = read.csv("~/CWD/dbCWD/db.raw/db.cwd/cwd.tp.csv")
+phos = read.csv("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/db.raw/db.cwd/cwd.tp.csv")
 
 
 #lowercase everything and rename cols
@@ -694,7 +694,7 @@ phos = phos %>% select(-midascheck)
 phos = phos %>% mutate(sampleid=paste(midas, basin, date, sep="_"))
 
 
-write.csv(phos, "~/CWD/dbCWD/library/tp.cwd.csv", row.names = F)
+write.csv(phos, "C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/library/tp.cwd.csv", row.names = F)
 
 
 
@@ -708,7 +708,7 @@ write.csv(phos, "~/CWD/dbCWD/library/tp.cwd.csv", row.names = F)
 
 
 #Chl ######
-chl = read.csv("~/CWD/dbCWD/db.raw/db.dep/CWD_CHLORO.csv")
+chl = read.csv("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/db.raw/db.dep/CWD_CHLORO.csv")
 str(chl)
 
 
@@ -797,7 +797,7 @@ chl$month = lubridate::month(chl$date)
 #save
 chl = chl %>% select(-midascheck)
 
-write.csv(chl, "~/CWD/dbCWD/library/chlorophyll.dep.csv", row.names = F)
+write.csv(chl, "C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/library/chlorophyll.dep.csv", row.names = F)
 
 
 
@@ -813,7 +813,7 @@ write.csv(chl, "~/CWD/dbCWD/library/chlorophyll.dep.csv", row.names = F)
 
 
 #Chem DEP ######
-chem = read.csv("~/CWD/dbCWD/db.raw/db.dep/CWD_CHEM.csv")
+chem = read.csv("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/db.raw/db.dep/CWD_CHEM.csv")
 names(chem)
 str(chem)
 
@@ -933,7 +933,7 @@ summary(chem$alk)
 chem = chem %>% select(-midascheck)
 
 #save
-write.csv(chem, "~/CWD/dbCWD/library/chem.dep.csv", row.names = F)
+write.csv(chem, "C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/library/chem.dep.csv", row.names = F)
 
 
 
@@ -945,7 +945,7 @@ write.csv(chem, "~/CWD/dbCWD/library/chem.dep.csv", row.names = F)
 
 # ~ a d v a n c e d  c h e m i s t r y ~ * 
 
-ac = read.csv("~/CWD/dbCWD/db.raw/db.dep/CWD_ADV_CHEM_1996-2012.csv")
+ac = read.csv("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/db.raw/db.dep/CWD_ADV_CHEM_1996-2012.csv")
 str(ac)
 names(ac)
 
@@ -1111,7 +1111,7 @@ summary(ac$tn_mg_)
 #cwd database chem stuff. ph, alk, color, conductivity
 
 
-chem2 = read.csv("~/CWD/dbCWD/db.raw/db.cwd/cwd.chem.csv")
+chem2 = read.csv("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/db.raw/db.cwd/cwd.chem.csv")
 
 
 names(chem2)
@@ -1214,7 +1214,7 @@ summary(chem2$alk)
 chem2 = chem2 %>% select(-midascheck)
 chem2 = chem2 %>% mutate(sampleid=paste(midas, basin, date, sep="_"))
 
-write.csv(chem2, "~/CWD/dbCWD/library/chem.cwd.csv", row.names = F)
+write.csv(chem2, "C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/library/chem.cwd.csv", row.names = F)
 
 
 
@@ -1225,118 +1225,5 @@ write.csv(chem2, "~/CWD/dbCWD/library/chem.cwd.csv", row.names = F)
 
 
 
-
-
-
-
-#DB Q's #########
-#dbCWD queries :)
-
-dexterp = phos %>% filter(lake=='dexter')
-dpro = profiles %>% filter(lake=='dexter')
-dg = general %>% filter(lake=='dexter')
-  
-mg = general %>% filter(lake=='maranacook' & year==1996)
-mpro = profiles %>% filter(lake=='maranacook' & year==1996)
-
-wilsp = phos %>% filter(lake=='wilson' & year==2011)
-
-chg = general %>% filter(lake=='cochnewagon' & year==1988)
-chpro = profiles %>% filter(lake=='cochnewagon' & year==1988)
-chphos = phos %>% filter(lake=='cochnewagon' & year==1988)
-chchl = chl %>% filter(lake=='cochnewagon' & year==1988)
-
-
-ag = general %>% filter(lake=='annabessacook' & year==1987)
-apro = profiles %>% filter(lake=='annabessacook' & year==1987)
-aphos = phos %>% filter(lake=='annabessacook' & year==1987)
-achl = chl %>% filter(lake=='annabessacook' & year==1987)
-
-
-cg = general %>% filter(lake=='cobbossee')
-cpro = profiles %>% filter(lake=='cobbossee' & year==1979)
-cphos = phos %>% filter(lake=='cobbossee' & year==1979)
-cchl = chl %>% filter(lake=='cobbossee' & year==1979)
-
-
-
-
-
-#wilson pond TP figure for layers
-wtp = read.csv("~/CWD/dbCWD/db.raw/dbCWD/tp.wilson2021.csv")
-wtp$date = as.Date(wtp$date, format="%m/%d/%Y")
-colnames(wtp) = c('date','0-6m','6-12m')
-
-#melt
-wtp1 = wtp %>% 
-  pivot_longer(cols = c('0-6m','6-12m'),
-               names_to = 'layer',
-               values_to = 'tp.kg')
-
-ggplot(wtp1, aes(x=date, y=tp.kg, color=layer)) +
-  geom_point(size=4) +
-  geom_line(linetype=2) +
-  labs(title='Wilson Pond Total Phosphorus kilograms 2021',
-       x='Date',
-       y="TP (kg)",
-       fill="Layer") +
-  theme_bw()
-
-#make layers and dates factors
-wtp1$layer = factor(wtp1$layer, levels=c("6-12m","0-6m"))
-wtp1 = wtp1 %>% mutate(dm = format(as.Date(date), "%d %b"))
-ds = unique(wtp1$dm)
-wtp1$dm = factor(wtp1$dm, levels=ds)
-
-#normal dates, hypo on top
-ggplot(wtp1, aes(x=date, y=tp.kg, fill=layer)) +
-  geom_bar(position='stack',stat='identity') +
- # scale_y_reverse() + 
-  labs(title='Wilson Pond TP 2021',
-       x='Date',
-       y="TP (kg)",
-       fill="Layer") +
-  theme_bw()
-
-#factor dates
-ggplot(wtp1, aes(x=dm, y=tp.kg, fill=layer)) +
-  geom_bar(position='stack',stat='identity') +
-  labs(title='Wilson Pond Total Phosphorus kilograms 2021',
-       x='Date',
-       y="TP (kg)",
-       fill="Layer") +
-  theme_bw()
-
-
-#wilson pond alkalinity
-
-walk = chem2 %>% filter(lake == 'wilson')
-unique(walk$date) #2000 to 2020
-summary(walk$alk)
-str(walk)
-walk$date = as.Date(walk$date)
-
-ggplot(walk, aes(x=date, y=alk)) + 
-  geom_point() +
-  geom_line() +
-  scale_x_date(date_labels='%Y')
-
-
-
-
-#check dep db wilson alk
-walkdep = chem %>% filter(lake == 'wilson')
-
-wsub = walkdep %>% filter(year<2000)
-
-
-
-
-
-
-ggplot(filter(year > 1989), aes(x=date, y=alk)) + 
-  geom_point() +
-  geom_line() +
-  scale_x_date(date_labels='%Y')
 
 

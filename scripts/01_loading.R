@@ -184,7 +184,15 @@ write.csv(general, "C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/library/survey.de
 
 
 
+
 #Profiles ######
+
+#load dep data
+#load cwd data for 2019-2020
+#load cwd new 2021 data
+
+
+#dep data 1975-2018
 profiles = read.csv("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/db.raw/db.dep/CWD_DO_TEMP_PROFILES.csv")
 str(profiles)
 
@@ -267,6 +275,32 @@ temp = profiles %>% filter(grepl('cobb',lake))
 #check for same number of rows. yup
 sum(temp1$freq)
 sum(temp2$freq)
+
+
+#load cwd data and subset 2019 2020
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #create sample id
 profiles = profiles %>% 

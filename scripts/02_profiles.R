@@ -12,7 +12,7 @@ library(rLakeAnalyzer)
 library(ggpubr)
 
 
-pro = read.csv("https://raw.githubusercontent.com/mfarragher7/dbCWD/main/library/profiles.dep.summary.csv", header=T)
+pro = read.csv("https://raw.githubusercontent.com/mfarragher7/dbCWD/main/library/profiles.1975-2021.summary.csv", header=T)
 
 
 #format dates
@@ -33,18 +33,7 @@ pro = pro %>%
   mutate(mm = replace(mm, month==11, 'Nov')) %>%
   mutate(mm = replace(mm, month==12, 'Dec'))
   
-pro$mm = factor(pro$mm, levels=c('Jan',
-                                 'Feb',
-                                 'Mar',
-                                 'Apr',
-                                 'May',
-                                 'Jun',
-                                 'Jul',
-                                 'Aug',
-                                 'Sep',
-                                 'Oct',
-                                 'Nov',
-                                 'Dec'))
+pro$mm = factor(pro$mm, levels=c('Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'))
 str(pro)
 
 #check for dups

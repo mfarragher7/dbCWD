@@ -549,7 +549,9 @@ write.csv(profiles, "C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/library/profiles
 
 
 #* summary ####
+profiles = read.csv('https://raw.githubusercontent.com/mfarragher7/dbCWD/main/library/profiles.1975-2021.csv',header=T)
 names(profiles)
+str(profiles)
 
 #summary of each profile
 spro = ddply(profiles, .(sampleid, midas, lake, station, date, agency, db), summarize, 
@@ -563,6 +565,7 @@ spro = ddply(profiles, .(sampleid, midas, lake, station, date, agency, db), summ
              thermo.depth = NA,
              temp.epi = NA,
              temp.hypo = NA,
+             temp.top5m=NA,
              meta.top=NA,
              meta.bottom=NA,
              #oxygen
@@ -590,23 +593,27 @@ for (i in 1:length(samp)){ #for every unique sample,
   #hypo temp
   td2 = td[td$depth > thermo[1], ] #subset each df with depths below thermocline depth
   hypo.temp = mean(td2$temp) #get average temp of hypo from subsetted df
-  spro[i,16] = hypo.temp[1]  }  #paste hypo temp
-  
+  spro[i,16] = hypo.temp[1] 
+  td3 = td[td$depth <= 5,] #subset top 5m from each profile
+  top5temp = mean(td3$temp) #mean temp of top 5m
+  spro[i,17] = top5temp[1] }  #paste hypo temp, close loop
 
 # get meta depths
 for (i in 1:length(samp)){ #for every unique sample,
   td = profiles[profiles$sampleid == samp[i], ] #temp dataframe that subsets profile df by each sampleid
   td = td[!duplicated(td$depth), ] #remove duplicate depths
   meta = meta.depths(td$temp, td$depth, slope=0.1, seasonal=F, mixed.cutoff=1) 
-  spro[i,17] = meta[1]   #top
-  spro[i,18] = meta[2] }  #bottom
+  spro[i,18] = meta[1]   #top
+  spro[i,19] = meta[2] }  #bottom
+
+
     
 # get max DO depth for each profile
 for (i in 1:length(samp)){ #for every unique sample,
   td = profiles[profiles$sampleid == samp[i], ] #temp dataframe that subsets profile df by each sampleid
   td = td[td$oxygen == max(td$oxygen),] #subset row of only max oxygen
   do.max.depth = td$depth #save depth at max do
-  spro[i,24] = do.max.depth[1] }   #paste depth of max DO 
+  spro[i,25] = do.max.depth[1] }   #paste depth of max DO 
 
 
 #check 

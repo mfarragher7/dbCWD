@@ -480,14 +480,8 @@ cwdpro21$month = lubridate::month(cwdpro21$date)
 
 names(cwdpro21)
 
-
-
 #COMBINE
 profiles = rbind(profiles.thru2020, cwdpro21)
-
-
-
-
 
 
 #* QC ####
@@ -534,7 +528,10 @@ write.csv(profiles, "C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/library/profiles
 
 
 
+
+
 #* summary ####
+#summarize all profiles
 profiles = read.csv('https://raw.githubusercontent.com/mfarragher7/dbCWD/main/library/profiles.1975-2021.csv',header=T)
 names(profiles)
 str(profiles)
@@ -592,15 +589,12 @@ for (i in 1:length(samp)){ #for every unique sample,
   spro[i,18] = meta[1]   #top
   spro[i,19] = meta[2] }  #bottom
 
-
-    
 # get max DO depth for each profile
 for (i in 1:length(samp)){ #for every unique sample,
   td = profiles[profiles$sampleid == samp[i], ] #temp dataframe that subsets profile df by each sampleid
   td = td[td$oxygen == max(td$oxygen),] #subset row of only max oxygen
   do.max.depth = td$depth #save depth at max do
   spro[i,25] = do.max.depth[1] }   #paste depth of max DO 
-
 
 #check 
 test1 = spro %>% filter(lake=='dexter' & date=='2013-05-22')

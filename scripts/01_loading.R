@@ -2,22 +2,15 @@
 # using data jeremy sent me 2022-11-14
 # 1971-2018. will eventually include recent years too
 
-
 # file paths -> -> ->
 # read in locally, modify, save to library
 # for further manipulation, read in using github web addresses. must be in 'raw' format
-
-
-
 
 
 #QC to-do: 
 # format date as yyyy-mm-dd. separate date and time
 # create sampleID column with midas_station_date
 # outliers. remove 999 type stuff. check min and max for each parameter
-
-
-
 
 
 #libraries
@@ -30,15 +23,8 @@ library(ggplot2)
 library(rLakeAnalyzer)
 
 
-
-
-
-
-
-
 #metadata
 md = read.csv("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/db.raw/lakemd.csv")
-
 
 #General ######
 #GENERAL SURVEY INFO and SECCHI
@@ -286,7 +272,7 @@ deppro$month = lubridate::month(deppro$date)
 
 
 
-#* cwd 98-2020 #######
+#* cwd 1998-2020 #######
 
 #load cwd data and subset 2019 2020
 cwdpro = read.csv('https://raw.githubusercontent.com/mfarragher7/dbCWD/main/db.raw/db.cwd/cwd.profiles.98-2020.csv',header=T)

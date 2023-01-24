@@ -5,6 +5,7 @@
 #libraries
 library(plyr)
 library(dplyr)
+library(tidyverse)
 library(ggplot2)
 library(rLakeAnalyzer)
 library(ggpubr)
@@ -46,7 +47,7 @@ pppro = filter(pro, lake=='pleasant' & (dm >= '06-01' & dm <= '09-14') & station
 
 #long df epi, hypo, top5m, mean, min, max
 pptempvars = pppro %>% 
-  pivot_longer(cols = c(temp.min, temp.max, temp.mean, temp.epi, temp.hypo, temp.top5m),
+  tidyr::pivot_longer(cols = c(temp.min, temp.max, temp.mean, temp.epi, temp.hypo, temp.top5m),
                names_to = 'temp.param',
                values_to = 'temp.value') 
 

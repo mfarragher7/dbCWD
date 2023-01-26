@@ -414,6 +414,7 @@ for (i in 1:length(samp)){ #for every unique sample,
   td2 = td[td$depth > thermo[1], ] #subset each df with depths below thermocline depth
   hypo.temp = mean(td2$temp) #get average temp of hypo from subsetted df
   spro[i,16] = hypo.temp[1] 
+  #top5m
   td3 = td[td$depth <= 5,] #subset top 5m from each profile
   top5temp = mean(td3$temp) #mean temp of top 5m
   spro[i,17] = top5temp[1] }  #paste hypo temp, close loop

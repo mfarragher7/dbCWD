@@ -4,38 +4,28 @@
 #load libraries
 library(plyr)
 library(tidyverse)
+library(zoo)
 library(lubridate)
 library(ggplot2)
 
-
-#load tp df
-
-
+#load tp 
 tp = read.csv('https://raw.githubusercontent.com/mfarragher7/dbCWD/main/library/tp.cwd.1998-2021.csv',header=T)
 pptp = tp %>% filter(lake=='pleasant')
 
-#2000 through 2021... where's 1998, 1999? plus need all the old time data too....
-
-
+#2000 through 2021... where's 1998, 1999? plus need all the older data too....
 str(pptp)
 pptp$date = as.Date(pptp$date)
 
-
 #workflow
-
 #average together reps
 
-#for dates with profiles - 
-  #add even depths, and interpolate
-
-#for dates with cores and a grab - 
+#for dates with cores + grabs - 
   #use core value for all depths within core, interpolate to grab depth
   # if grab depth includes core depth, exclude core value for that depth
-
+#for dates with profiles OR grabs - 
+  #add even depths, and interpolate
 #for dates with only one grab... oh well!
-
 #for dates with only shallow cores - mark as epi only I guess
-
 
 #average together reps from same date-depth-type
 pptp$depthID = paste(pptp$sampleid, pptp$depth, pptp$type, sep='_')
@@ -45,19 +35,12 @@ pptpr = ddply(pptp, .(depthID, sampleid, station, date, agency, depth, type),
               summarise, 
               tp = mean(tp.ppm))
 
-  
-#new ID col, all profiles should share a typeID
-# cores + grabs should share a sampleID
-pptpr$typeID = paste(pptpr$sampleid, pptpr$type, sep='_')
-
 length(unique(pptpr$sampleid))
 length(unique(pptpr$depthID))
-length(unique(pptpr$typeID))
 
 str(pptpr)
 temp = plyr::count(pptpr$depth)
 #conditional filter, if profile has '0.5' or other decimal, pull out all sampleids that match
-
 temp2 = pptpr %>% 
   group_by(sampleid) %>% 
   filter(0.5 %in% depth | 
@@ -80,7 +63,6 @@ pptps1 = pptpr %>% filter(station==1)
 
 #roundabout way of getting IDs from profiles with 'core AND grab'
 core.grab = ddply(pptps1, .(sampleid), summarize, core.grab=NA)
-
 #save ID
 sampID = unique(pptps1$sampleid)
 
@@ -92,12 +74,8 @@ for (i in 1:length(sampID)){ #for every unique sample,
                 (core.grab[i,2] = 'c'),  #paste c
                 ifelse((!('c' %in% td$type) & ('g' %in% td$type)), # if c not present but g is,
                        (core.grab[i,2] = 'g'), #paste g
-                       NA)
-         )
-         
-  )
+                       NA))) 
 }
- 
 
 #merge new col back into tp df
 pptpcg = merge(pptps1, core.grab, by='sampleid')
@@ -106,24 +84,19 @@ pptpcg = merge(pptps1, core.grab, by='sampleid')
 
 
 
+#C+G ########
+#work through profiles with cores and grabs
 
-
-
-
-
-#Core/Grab ########
-# a few cases where there's 5 grabs and a core. best to drop cores? 
-tpcg = pptpcg %>% filter(core.grab=='b')
-tpcg = tpcg %>% rename(sampID = sampleid)
-tpcg = tpcg %>% filter(station==1)
+cg = pptpcg %>% filter(core.grab=='b')
+cg = cg %>% rename(sampID = sampleid)
 
 #more depth cols
-tpcg = tpcg %>% 
+cg = cg %>% 
   mutate(core.dep = ifelse(type=='c', dep.new, NA)) %>% 
   mutate(grab.dep = ifelse(type=='g', dep.new, NA))
 
-#need to know which sampID have enough grabs and their depths to add to other df
-cgsum = ddply(tpcg, .(sampID, date), summarize, 
+#need to know which sampID have enough grabs/ depths to drop here and add to other df
+cgsum = ddply(cg, .(sampID, date), summarize, 
               tp.mean = mean(tp),
               n.core = length(which(type=='c')),
               core.dep = NA,
@@ -134,7 +107,7 @@ cgsum = ddply(tpcg, .(sampID, date), summarize,
 #get core depth, and min and max grab depths
 sampID = unique(cgsum$sampID)
 for (i in 1:length(sampID)){ #for every unique sample
-  td = tpcg[tpcg$sampID == sampID[i], ] #temp df that subsets df by each sample
+  td = cg[cg$sampID == sampID[i], ] #temp df that subsets df by each sample
   core = td[td$type == 'c', ] #just core
   core.depth = core$dep.new
   cgsum[i,5] = core.depth[1]   #paste core depth
@@ -152,38 +125,129 @@ more.profiles = temp$sampID
 #if sampID matches, change to grab only. fixed code later to subset the cores out from 'grabs only' df
 pptpcg = pptpcg %>% 
   mutate(core.grab = replace(core.grab, sampleid %in% more.profiles, 'g')) 
+#now remove extra cores from core/grab df
+#make depthID NA, then remove. 
+#removs 72 values, makes sense: 12 profiles with 5g + 1c each. cores subsetted out later too
+cg = cg %>% 
+  mutate(depthID = replace(depthID, (sampID %in% more.profiles), NA)) %>% 
+         drop_na(depthID)
+#28 profiles
+length(unique(cg$sampID)) 
 
-#another new ID col 
-tpcg$mergeID = paste(tpcg$sampID, tpcg$dep.new, sep='_')
+#are there cores deeper than or equal to max grab?
+cgsum = cgsum %>% 
+  mutate(core.deeper = ifelse((core.dep > max.grab.dep), 'y', NA)) %>% 
+  mutate(cg.dep.equal = ifelse((core.dep == max.grab.dep), 'y', NA))
+  
+#save sampIDs
+#core < grab 
+grab.deeper = cgsum %>% filter(is.na(core.deeper) & is.na(cg.dep.equal))
+grab.deeperID = grab.deeper$sampID
+#c reo > grab
+core.deeper = cgsum %>% filter(core.deeper == 'y')
+core.deeperID = core.deeper$sampID
+#equal
+cg.dep.equal = cgsum %>% filter(cg.dep.equal == 'y')
+cg.dep.equalID = cg.dep.equal$sampID
+#get max grab dep 
+cg.max.grab.dep = cgsum %>% select(sampID, max.grab.dep)
 
+
+#* interpolation ####
+#another new ID col for merging
+cg$mergeID = paste(cg$sampID, cg$dep.new, sep='_')
+length(unique(cg$mergeID))
 #new df with space for interpolated values 0 to 9m
+sampID = unique(cg$sampID)
 emptydf = data.frame(sampID = sampID)
 tempdf = expand.grid(int.depth = seq(1,9), sampID = sampID)
 tempdf$mergeID = paste(tempdf$sampID, tempdf$int.depth, sep='_')
 tempdf = tempdf %>% select(-sampID)
+#check
+plyr::count(tempdf$int.depth) # ok. 
 #merge and other changes
-cgwerk = join(tempdf, tpcg, by='mergeID')
+cgwerk = join(tempdf, cg, by='mergeID')
 names(cgwerk)
+str(cgwerk)
 cgwerk = cgwerk %>% 
   select(-depth) %>% 
   rename(depth = dep.new)
 cgwerk$sampID = str_sub(cgwerk$mergeID, end=-3)
 cgwerk$date = str_sub(cgwerk$sampID, start=8, end=-4)
+length(unique(cgwerk$sampID))
 cgwerk$date = as.Date(cgwerk$date)
 cgwerk = cgwerk %>% select(sampID, date, depth, tp, type, core.dep, grab.dep, int.depth)
+plyr::count(cgwerk$int.depth) # too many depths because sometimes g and c depths match.
 
+
+
+# *** needs work ###################
 #think through interpolation...
 #tp for core depths the length of core
 #if core extends to grab depth or deeper, use grab tp values instead
 #interpolate NAs
+#drop 'extra' depths from cores if c/g depths match
+
+#add max grab depths
+cgwerk = join (cgwerk, cg.max.grab.dep, by='sampID')
+
+cgwerk = cgwerk %>% 
+  mutate(who.deeper = ifelse((sampID %in% grab.deeperID), 'g',
+                             ifelse((sampID %in% core.deeperID), 'c',
+                                     ifelse((sampID %in% cg.dep.equalID), 'equal', NA))))
+
+#seperate dfs, cant figure out how to ifelse my way out of this
+#df weird
+str(cgwerk)
+cgwerk$int.depth = as.numeric(cgwerk$int.depth)
+cgwerk = as.data.frame(cgwerk)
+str(cgwerk)
 
 
+#*grabs deeper than core ###########
 
+#group by type, drag up tp values
+cgnormal = cgwerk %>% 
+  filter(who.deeper == 'g') %>% 
+  fill(type, .direction = "up") %>% 
+  group_by(sampID) %>% 
+  mutate(tp.temp = tp) %>% 
+  group_by(sampID, type) %>% 
+  fill(tp.temp, .direction = "up") %>% 
+  ungroup()
 
+#delete dragged down tp values from cores 
+cgnormal = cgnormal %>% 
+  group_by(sampID) %>% 
+  mutate(tp.temp = replace(tp.temp, (type=='g' & is.na(tp)), NA))
+  
+#remove extra rows where int.depth > max grab depth
+cgnormal = cgnormal %>% 
+  mutate(drop.extra = ifelse(int.depth > max.grab.dep, 1, NA)) %>% 
+  filter(is.na(drop.extra))
 
+#if core and grab depths match, take grab depth
+# 5254_1_2021-10-08_cw double 7m 
+# 5254_1_2020-09-18_cw double 6m
+plyr::count(cgnormal$int.depth) 
 
-#interpolate!!!
-library(zoo)
+#omg a for loop
+cgnormal$cg.match = NA
+cgnormal$depID = paste(cgnormal$sampID, cgnormal$int.depth, sep='_')
+depID = cgnormal$depID
+
+#for every unique depthID....
+for (i in 1:length(depID)){ 
+  td = cgnormal[cgnormal$depID == depID[i], ]
+  ifelse(nrow(td) > 1, #if there's depths that match
+         (cgnormal[i,'cg.match'] = paste('y')), #paste yes
+         NA) } # or not
+#subset
+cgnormal = cgnormal %>% 
+  mutate(drop.cg.match = ifelse(cg.match=='y' & type=='c', 'y', NA)) %>% 
+  filter(is.na(drop.cg.match))
+  
+# maybe finally redy to interpolate!!!
 tppro$tp.int = zoo::na.approx(tppro$tp)
 
 
@@ -191,6 +255,27 @@ tppro$tp.int = zoo::na.approx(tppro$tp)
 
 
 
+#group by type, drag up tp values
+cg.deepcore = cgwerk %>% 
+  filter(who.deeper == 'c') 
+
+
+%>% 
+  fill(type, .direction = "up") %>% 
+  group_by(sampID) %>% 
+  mutate(tp.temp = tp) %>% 
+  group_by(sampID, type) %>% 
+  fill(tp.temp, .direction = "up") %>% 
+  ungroup()
+
+
+
+
+
+
+
+#*rejoin #######
+#reunite normal (grabs deeper), core deeper, and cg equal dfs with interpolated values
 
 
 
@@ -202,7 +287,13 @@ tppro$tp.int = zoo::na.approx(tppro$tp)
 
 
 
-#GRABS ONLYZ #####
+
+
+
+
+
+
+#GRABS #####
 
 #subset
 pptppro = pptpcg %>% filter(core.grab=='g' & type=='g') #also drops extra core samples from core/grab cases
@@ -357,6 +448,61 @@ ggplot(vwprosum, aes(x=date, y=tp.vw)) +
 
 #why is 2018-09-17 tp = 0.71311....
 check2 = tpvw %>% filter(date=='2018-09-17') #seems off by one order of magnitude
+
+
+
+
+#CORES ########
+#cores only 
+
+tpcore = pptpcg %>% filter(core.grab=='c')
+tpcore = tpcore %>% rename(sampID = sampleid)
+tpcore = tpcore %>% filter(station==1)
+sampID = unique(tpcore$sampID)
+
+#new merge ID
+tpcore$mergeID = paste(tpcore$sampID, tpcore$dep.new, sep='_')
+
+#new df with space for interpolated values 0 to 9m
+emptydf = data.frame(sampID = sampID)
+tempdf = expand.grid(int.depth = seq(1,9), sampID = sampID)
+tempdf$mergeID = paste(tempdf$sampID, tempdf$int.depth, sep='_')
+tempdf = tempdf %>% select(-sampID)
+
+#merge
+cr = join(tempdf, tpcore, by='mergeID')
+names(cr)
+cr = cr %>% select(mergeID,int.depth,tp)
+cr$sampID = str_sub(cr$mergeID, end=-3)
+cr$date = str_sub(cr$sampID, start=8, end=-4)
+cr$date = as.Date(cr$date)
+cr = cr %>% 
+  rename(depth=int.depth) %>% 
+  select(sampID, date, depth, tp)
+
+
+
+
+
+#remove bottom depths where no data before interpolation
+
+
+
+#interpolate!!!
+library(zoo)
+tppro$tp.int = zoo::na.approx(tppro$tp)
+
+
+
+
+
+
+
+#MERGE ########
+
+
+#rejoin tp interpolated values and such from C/G, cores only, grabs only. 
+
 
 
 

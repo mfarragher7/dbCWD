@@ -8,13 +8,14 @@ library(zoo)
 library(lubridate)
 library(ggplot2)
 
-#load tp 
+#load tp #####
 tp = read.csv('https://raw.githubusercontent.com/mfarragher7/dbCWD/main/library/tp.cwd.1998-2021.csv',header=T)
 pptp = tp %>% filter(lake=='pleasant')
 
 #2000 through 2021... where's 1998, 1999? plus need all the older data too....
 str(pptp)
 pptp$date = as.Date(pptp$date)
+pptp = pptp %>% rename(sampID = sampleid)
 
 #workflow
 #average together reps
@@ -28,21 +29,21 @@ pptp$date = as.Date(pptp$date)
 #for dates with only shallow cores - mark as epi only I guess
 
 #average together reps from same date-depth-type
-pptp$depthID = paste(pptp$sampleid, pptp$depth, pptp$type, sep='_')
+pptp$depthID = paste(pptp$sampID, pptp$depth, pptp$type, sep='_')
 plyr::count(pptp$r)
 
-pptpr = ddply(pptp, .(depthID, sampleid, station, date, agency, depth, type),
+pptpr = ddply(pptp, .(depthID, sampID, station, date, agency, depth, type),
               summarise, 
               tp = mean(tp.ppm))
 
-length(unique(pptpr$sampleid))
+length(unique(pptpr$sampID))
 length(unique(pptpr$depthID))
 
 str(pptpr)
 temp = plyr::count(pptpr$depth)
 #conditional filter, if profile has '0.5' or other decimal, pull out all sampleids that match
 temp2 = pptpr %>% 
-  group_by(sampleid) %>% 
+  group_by(sampID) %>% 
   filter(0.5 %in% depth | 
            1.5 %in% depth |
            2.5 %in% depth |
@@ -62,12 +63,12 @@ temp = plyr::count(pptpr$dep.new)
 pptps1 = pptpr %>% filter(station==1)
 
 #roundabout way of getting IDs from profiles with 'core AND grab'
-core.grab = ddply(pptps1, .(sampleid), summarize, core.grab=NA)
+core.grab = ddply(pptps1, .(sampID), summarize, core.grab=NA)
 #save ID
-sampID = unique(pptps1$sampleid)
+sampID = unique(pptps1$sampID)
 
 for (i in 1:length(sampID)){ #for every unique sample,
-  td = pptps1[pptps1$sampleid == sampID[i], ] #temp dataframe that subsets cgcheck df by each sampleid
+  td = pptps1[pptps1$sampID == sampID[i], ] #temp dataframe that subsets cgcheck df by each sampID
   ifelse((('c' %in% td$type) & ('g' %in% td$type)), #if c and g present, 
          (core.grab[i,2] = 'b'),  #paste b for both 
          ifelse((('c' %in% td$type) & !('g' %in% td$type)), #if c present but g isnt
@@ -78,8 +79,19 @@ for (i in 1:length(sampID)){ #for every unique sample,
 }
 
 #merge new col back into tp df
-pptpcg = merge(pptps1, core.grab, by='sampleid')
+pptpcg = merge(pptps1, core.grab, by='sampID')
 
+
+
+#outliers ########
+high.tp = pptpcg %>% filter(tp > 0.1) 
+#all at or below 7m depth except 1
+#2018-09-17 3.5m grab = 0.27. off by 1 order of mag?
+check = pptpcg %>% filter(date=='2018-09-17') 
+#fix manually
+pptpcg = pptpcg %>% 
+  mutate(tp = ifelse(sampID=='5254_1_2018-09-17_cw' & depth==3.5, 0.027, tp))
+str(pptpcg)
 
 
 
@@ -88,7 +100,6 @@ pptpcg = merge(pptps1, core.grab, by='sampleid')
 #work through profiles with cores and grabs
 
 cg = pptpcg %>% filter(core.grab=='b')
-cg = cg %>% rename(sampID = sampleid)
 
 #more depth cols
 cg = cg %>% 
@@ -124,7 +135,7 @@ temp = cgsum %>% filter(n.grab == 5)
 more.profiles = temp$sampID
 #if sampID matches, change to grab only. fixed code later to subset the cores out from 'grabs only' df
 pptpcg = pptpcg %>% 
-  mutate(core.grab = replace(core.grab, sampleid %in% more.profiles, 'g')) 
+  mutate(core.grab = replace(core.grab, sampID %in% more.profiles, 'g')) 
 #now remove extra cores from core/grab df
 #make depthID NA, then remove. 
 #removs 72 values, makes sense: 12 profiles with 5g + 1c each. cores subsetted out later too
@@ -297,14 +308,10 @@ cg.int = cg.int %>% rename(depth = int.depth)
 
 
 
-
-
-
 #GRABS #####
 #profiles of just grabs
 #subset
-gpro = pptpcg %>% filter(core.grab=='g' & type=='g') %>%  #also drops extra core samples from core/grab cases
-  rename(sampID = sampleid)
+gpro = pptpcg %>% filter(core.grab=='g' & type=='g')  #also drops extra core samples from core/grab cases
 plyr::count(gpro$sampID)
 
 #workflow: 
@@ -338,19 +345,18 @@ tempdf$mergeID = paste(tempdf$sampID, tempdf$int.depth, sep='_')
 tempdf = tempdf %>% select(-sampID)
 
 #merge
-tppro = join(tempdf, pptppro, by='mergeID')
-names(tppro)
-tppro = tppro %>% select(mergeID,int.depth,tp)
-tppro$sampID = str_sub(tppro$mergeID, end=-3)
-tppro$date = str_sub(tppro$sampID, start=8, end=-4)
-tppro$date = as.Date(tppro$date)
-tppro = tppro %>% 
+gprow = join(tempdf, gpro, by='mergeID')
+names(gprow)
+gprow = gprow %>% select(mergeID,int.depth,tp)
+gprow$sampID = str_sub(gprow$mergeID, end=-3)
+gprow$date = str_sub(gprow$sampID, start=8, end=-4)
+gprow$date = as.Date(gprow$date)
+gprow = gprow %>% 
   rename(depth=int.depth) %>% 
   select(sampID, date, depth, tp)
 
 #interpolate!!!
-library(zoo)
-tppro$tp.int = zoo::na.approx(tppro$tp)
+gprow$tp.int = zoo::na.approx(gprow$tp)
 
 #some key issues, 
 # need to identify where there are incomplete profiles and not extrapolate to 9m. 
@@ -358,163 +364,121 @@ tppro$tp.int = zoo::na.approx(tppro$tp)
 
 #if 9m  AND 8m are NA in column 'tp' but filled in in 'tp.int', remove row
 #pull in MAX DEPTH from sumamry DF and use that to define conditions for removal
-maxdep = prosum %>% select(sampleid, min.dep, max.dep, n.depth)
-maxdep = maxdep %>% rename(sampID = sampleid)
+maxdep = prosum %>% select(sampID, min.dep, max.dep, n.depth)
 #join
-tppro = join(tppro, maxdep, by='sampID')
-temp = plyr::count(tppro$tp.int)
-str(tppro)
-tppro$depth = as.numeric(tppro$depth)
+gprow = join(gprow, maxdep, by='sampID')
+temp = plyr::count(gprow$tp.int)
+str(gprow)
+gprow$depth = as.numeric(gprow$depth)
 
 #change tp.int to NA if maxdep/tp dep are = 7/8, 7/9, or 8/9. 
-tpfix = tppro %>% 
+gprow = gprow %>% 
   mutate(tp.int = replace(tp.int, (grepl(7, max.dep) & grepl(8, depth)), NA)) %>% 
   mutate(tp.int = replace(tp.int, (grepl(7, max.dep) & grepl(9, depth)), NA)) %>% 
   mutate(tp.int = replace(tp.int, (grepl(8, max.dep) & grepl(9, depth)), NA))
 
 #change one problem date 2011-09-14 (one depth, just one grab) to all NA
-tpfix = tpfix %>% 
+gprow = gprow %>% 
   mutate(tp.int = replace(tp.int, date=='2011-09-14', NA))
-  
-#** vol weight ############
-#add bathyometric values
-#repeat last value bc that's everything '>7m' 
-bathy = data.frame(depth = c(1, 2, 3, 4, 5, 6, 7, 8, 9), 
-                  vol = c(2.021572, 1.400789, 0.993113,
-                          0.771754, 0.514930, 0.219404,
-                          0.067407, 0.013743, 0.013743))         
-str(bathy)                         
-#join
-tpvw = join(tpfix, bathy, by='depth')
-#get kg (vol weighted)
-tpvw$tpkg = (tpvw$tp.int *  tpvw$vol)
-#now is a good time to drop NA tp.ints
-tpvw = tpvw %>% drop_na(tp.int)
-#make actually kg
-tpvw$tpkg = tpvw$tpkg *  1000
 
-#get summary df for total P vol weighted kg
-vwprosum = ddply(tpvw, .(sampID, date), summarize,
-                 tp.kg = sum(tpkg),
-                 tp.kg.epi = NA,
-                 tp.kg.hypo = NA,
-                 tp.min = min(tpkg),
-                 tp.max = max(tpkg), 
-                 tp.mean = mean(tpkg),
-                 tp.sd = sd(tpkg),
-                 max.dep = mean(max.dep),
-                 n.dep = mean(n.depth))
+grabs.int = gprow %>% 
+  filter(!is.na(tp.int))
 
-#save ID
-sampID = unique(vwprosum$sampID)
-#get epi and hypo tpkg
-for (i in 1:length(sampID)){ #for every unique sample
-  td = tpvw[tpvw$sampID == sampID[i], ] #temp df that subsets df by each sample
-  td.epi = td[td$depth <= 5,] #subset top 5m from each profile
-  epi.kg = sum(td.epi$tpkg) #mean tpkg of top 5m
-  vwprosum[i,4] = epi.kg[1]   #paste value
-  td.hypo = td[td$depth > 5,] #subset below 5m from each profile
-  hypo.kg = sum(td.hypo$tpkg) #mean tpkg of 6-9m
-  vwprosum[i,5] = hypo.kg[1]   #paste value
-}
+#end 2/3rd of types of tp profiles
 
-#divide by total vol
-vwprosum$tp.vw = vwprosum$tp.kg / 6.002712 #PP total vol
-vwprosum$epi.tpvw = vwprosum$tp.kg.epi / (2.021572 + 1.400789 +0.993113 + 0.771754 + 0.514930)
-vwprosum$hypo.tpvw = vwprosum$tp.kg.hypo / (0.219404 + 0.067407 + 0.013743 + 0.013743)
 
-#check 
-head(vwprosum)
-vwprosum$test = vwprosum$tp.kg.epi + vwprosum$tp.kg.hypo  
-vwprosum$test = round(vwprosum$test, digits = 5)
-vwprosum$tp.kg = round(vwprosum$tp.kg, digits = 5)
-common = intersect(vwprosum$tp.kg, vwprosum$test)
-length(common) #100 out of 100!
 
-#vol weighted values for epi/hypo not supposed to match overall vol weighted 
-vwprosum$test2 = vwprosum$epi.tpvw + vwprosum$hypo.tpvw  
-common = intersect(vwprosum$tpvw, vwprosum$test2)
-length(common) #yay
-
-#compare to wendy's work
-#2009-09-15
-check = tpvw %>% filter(date=='2009-09-15')
-sum(check$tpkg)
-#wendy didn't include 8+ m grab but I did. 
-check2 = tpvw %>% filter(date=='2009-08-18')
-sum(check2$tpkg)
-
-check = vwprosum %>% filter(date=='2009-09-15')
-check$tp.vw
-#28.92 compared to Wendy's 27.82, again i included bottom grab
-
-#quick plot for fun
-ggplot(vwprosum, aes(x=date, y=tp.vw)) + 
-  geom_point() +
-  geom_line()
-
-#why is 2018-09-17 tp = 0.71311....
-check2 = tpvw %>% filter(date=='2018-09-17') #seems off by one order of magnitude
 
 
 
 
 #CORES ########
 #cores only 
-
-tpcore = pptpcg %>% filter(core.grab=='c')
-tpcore = tpcore %>% rename(sampID = sampleid)
-tpcore = tpcore %>% filter(station==1)
-sampID = unique(tpcore$sampID)
-
+core = pptpcg %>% filter(core.grab=='c')
+sampID = unique(core$sampID)
+#save sampID and core depth for later
+core.depths = core %>% 
+  select(sampID, depth) %>% 
+  rename(core.depth = depth)
 #new merge ID
-tpcore$mergeID = paste(tpcore$sampID, tpcore$dep.new, sep='_')
-
+core$mergeID = paste(core$sampID, core$dep.new, sep='_')
 #new df with space for interpolated values 0 to 9m
 emptydf = data.frame(sampID = sampID)
 tempdf = expand.grid(int.depth = seq(1,9), sampID = sampID)
 tempdf$mergeID = paste(tempdf$sampID, tempdf$int.depth, sep='_')
 tempdf = tempdf %>% select(-sampID)
-
 #merge
-cr = join(tempdf, tpcore, by='mergeID')
-names(cr)
-cr = cr %>% select(mergeID,int.depth,tp)
-cr$sampID = str_sub(cr$mergeID, end=-3)
-cr$date = str_sub(cr$sampID, start=8, end=-4)
-cr$date = as.Date(cr$date)
-cr = cr %>% 
+core2 = join(tempdf, core, by='mergeID')
+names(core2)
+#subset, clean up
+core2 = core2 %>% select(mergeID,int.depth,tp)
+core2$sampID = str_sub(core2$mergeID, end=-3)
+core2$date = str_sub(core2$sampID, start=8, end=-4)
+core2$date = as.Date(core2$date)
+core2 = core2 %>% 
   rename(depth=int.depth) %>% 
   select(sampID, date, depth, tp)
-
-
-
-
-
+#join core.depths back into df
+core2 = join(core2, core.depths, by='sampID')
 #remove bottom depths where no data before interpolation
+core2 = core2 %>% 
+  group_by(sampID) %>% 
+  mutate(drop.extra = ifelse((depth > core.depth), 'bye', NA)) %>% 
+  filter(is.na(drop.extra)) %>% 
+  select(-drop.extra)
+#fill in
+core2 = core2 %>% 
+  mutate(tp.int = tp) %>% 
+  fill(tp.int, .direction='up')
+#clean some more
+core.int = core2 %>%  
+  select(sampID, date, depth, tp.int) %>% 
+  rename(tp = tp.int) 
 
-
-
-#interpolate!!!
-library(zoo)
-tppro$tp.int = zoo::na.approx(tppro$tp)
-
-
-
-
+  
 
 
 
 #MERGE ########
-
-
-
 #rejoin tp interpolated values and such from C/G, cores only, grabs only. 
+#cores only
+names(core.int)
+core.int.nice = core.int %>% 
+  mutate(type = 'c') %>% 
+  mutate(set = 'c') 
+names(core.int.nice)
+# cores/grabs
+names(cg.int)
+cg.int.nice = cg.int %>% 
+  select(sampID, date, depth, tp.int, type) %>% 
+  rename(tp = tp.int) %>% 
+  mutate(set = 'cg')
+names(cg.int.nice)
+#grabs only
+names(grabs.int)
+grabs.int.nice = grabs.int %>% 
+  select(sampID, date, depth, tp.int) %>% 
+  rename(tp = tp.int) %>% 
+  mutate(type = 'g') %>% 
+  mutate(set = 'g')
+names(grabs.int.nice)
+
+#merge
+tp.clean = rbind(grabs.int.nice,
+                 core.int.nice,
+                 cg.int.nice)
+
+str(tp.clean)
+summary(tp.clean$tp)
+# nice
+
+
+
 
 
 
 #VOL WEIGHT ############################
-#just do this once!!!!
+#transform into volumetrically weighted tp
 
 
 #add bathymetric values
@@ -525,7 +489,207 @@ bathy = data.frame(depth = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                            0.067407, 0.013743, 0.013743))         
 str(bathy)                         
 #join
-cg.int = join(cg.int, bathy, by='depth')
+tp.vw = join(tp.clean, bathy, by='depth')
+#get kg 
+tp.vw$tp.kg = (tp.vw$tp * tp.vw$vol * 1000)
+
+#* drop 9m rows ######################
+#tp.vw
+#maybe later
+
+
+
+#get summary df for total P vol weighted kg
+tp.sum = ddply(tp.vw, .(sampID, date, set), summarize,
+               tp.kg.total = sum(tp.kg),
+               tp.kg.epi = NA,
+               tp.kg.hypo = NA,
+               tp.kg.min = min(tp.kg),
+               tp.kg.max = max(tp.kg), 
+               tp.kg.mean = mean(tp.kg),
+               tp.kg.sd = sd(tp.kg),
+               pro.depth = max(depth))
+str(tp.sum)
+#get epi and hypo tpkg
+#save ID
+sampID = unique(tp.sum$sampID)
+for (i in 1:length(sampID)){ 
+  td = tp.vw[tp.vw$sampID == sampID[i], ] #subset by sample
+  td.epi = td[td$depth <= 5,] #subset top 5m from each profile
+  epi.kg = sum(td.epi$tp.kg) #mean tpkg of top 5m
+  tp.sum[i,5] = epi.kg[1]   #paste value
+  td.hypo = td[td$depth > 5,] #subset below 5m from each profile
+  hypo.kg = sum(td.hypo$tp.kg) #mean tpkg of 6-9m
+  tp.sum[i,6] = hypo.kg[1]   #paste value
+}
+
+#divide by total vol for actual volume weighted
+tp.sum$tp.vw = tp.sum$tp.kg.total / 6.002712 #PP total vol
+tp.sum$tp.vw.epi = tp.sum$tp.kg.epi / (2.021572 + 1.400789 +0.993113 + 0.771754 + 0.514930)
+tp.sum$tp.vw.hypo = tp.sum$tp.kg.hypo / (0.219404 + 0.067407 + 0.013743 + 0.013743)
+
+#check 
+test = tp.sum
+test$test = test$tp.kg.epi + test$tp.kg.hypo  
+test$test = round(test$test, digits = 2)
+test$tp.kg.total = round(test$tp.kg.total, digits = 2)
+length(intersect(test$tp.kg.total, test$test)) #134/135
+#vol weighted values for epi/hypo not supposed to match overall vol weighted 
+test$test2 = test$tp.vw.epi + test$tp.vw.hypo  
+length(intersect(test$tp.vw, test$test2))
+
+#compare to wendy's work
+#2009-09-15
+check = tp.kg %>% filter(date=='2009-09-15')
+sum(check$tp.kg)
+#wendy didn't include 8+ m grab but I did. 
+check2 = tp.kg %>% filter(date=='2009-08-18')
+sum(check2$tp.kg)
+
+check = tp.sum %>% filter(date=='2009-09-15')
+check$tp.vw
+#28.92 compared to Wendy's 27.82, again i included bottom grab
+
+
+#YEARLY avg ############
+tp.sum$year = lubridate::year(tp.sum$date)
+names(tp.sum)
+
+tp.yr = ddply(tp.sum, .(year), summarize,
+              n = length(unique(date)),
+              tp.vw.min = min(tp.vw),
+              tp.vw.max = max(tp.vw), 
+              tp.vw.mean = mean(tp.vw),
+              tp.vw.sd = sd(tp.vw),
+              tp.vw.epi.min = min(tp.vw.epi),
+              tp.vw.epi.max = max(tp.vw.epi), 
+              tp.vw.epi.mean = mean(tp.vw.epi),
+              tp.vw.epi.sd = sd(tp.vw.epi),
+              tp.vw.hypo.min = min(tp.vw.hypo),
+              tp.vw.hypo.max = max(tp.vw.hypo), 
+              tp.vw.hypo.mean = mean(tp.vw.hypo),
+              tp.vw.hypo.sd = sd(tp.vw.hypo))
+   
+#add 90s values for total mean TPppb
+tp90s = data.frame(year = c(1991, 1992, 1992, 1994, 1995,
+                            1996, 1997, 1998, 1999), 
+                   tp.vw.mean = c(28, 23, 22, 19, 24, 23, 22, 25, 20))
+             
+tp.yr = dplyr::bind_rows(tp90s, tp.yr)              
+         
+
+
+ 
+#PLOTS ########
+#quick plot for fun
+ggplot(tp.sum, aes(x=date, y=tp.vw, color=set)) + 
+  geom_point()
+
+ggplot(tp.sum, aes(x=date, y=tp.vw)) + 
+  geom_point() + 
+  geom_line(linetype=3)
+  
+ggplot(tp.sum, aes(x=date, y=tp.vw)) + 
+  geom_point() + 
+  stat_smooth(method="loess", 
+              linewidth=0.75,
+              se=T, 
+              show.legend=F)
+
+
+
+#yearly
+ggplot(tp.yr, aes(x=year, y=tp.vw.mean)) + 
+  geom_point() + 
+  stat_smooth(method="loess", 
+              linewidth=0.5,
+              se=F, 
+              show.legend=F,
+              mapping=aes(alpha=0.1)) + 
+  scale_y_continuous(limits=c(15,30)) +
+  labs(title='Internal phosphorus loading 1991-2021',
+       y='TP ppb (vol. weighted)',
+       x='Date') +
+  theme_bw() +
+    theme(title=element_text(size=10))
+  
+ 
+#seasonal variability, error bars
+ggplot(tp.yr, aes(x=year, y=tp.vw.mean)) + 
+  geom_point() + 
+  geom_errorbar(aes(ymin=tp.vw.mean - tp.vw.sd, 
+                    ymax=tp.vw.mean + tp.vw.sd), 
+                width=.2,
+                position=position_dodge(.9)) +
+  stat_smooth(method="loess", 
+              linewidth=0.5,
+              se=F, 
+              show.legend=F,
+              mapping=aes(alpha=0.1)) + 
+  scale_y_continuous(limits=c(10,35)) +
+  scale_x_continuous(limits=c(1999.5,2022)) +
+  labs(title='Standard deviation of TP within season 2000-2021',
+       y='TP ppb (vol. weighted)',
+       x='Date') +
+  theme_bw() +
+  theme(title=element_text(size=10))
+
+
+#seasonal variability, min and max
+temp = tp.yr %>% 
+  tidyr::pivot_longer(
+    cols = c(tp.vw.min, tp.vw.mean, tp.vw.max), 
+    names_to = 'Value',
+    values_to = 'tp.val') %>% 
+  mutate(Value = replace(Value, grepl('tp.vw.min',Value),'Min')) %>% 
+  mutate(Value = replace(Value, grepl('tp.vw.mean',Value),'Mean')) %>% 
+  mutate(Value = replace(Value, grepl('tp.vw.max',Value),'Max'))
+
+ggplot(temp,
+       aes(x=year, y=tp.val, color=Value)) +
+  geom_point() + 
+  stat_smooth(method="loess", 
+              linewidth=0.5,
+              se=F, 
+              show.legend=F,
+              mapping=aes(alpha=0.1)) + 
+  scale_y_continuous(limits=c(10,40)) +
+  scale_x_continuous(limits=c(2000,2021)) +
+  labs(title='TP seasonal variability 2000-2021',
+       y='TP ppb (vol. weighted)',
+       x='Date') +
+  theme_bw() +
+  theme(title=element_text(size=10))
+
+
+#epi/hypo contribution
+ggplot((tp.yr %>% 
+         tidyr::pivot_longer(
+           cols = c(tp.vw.epi.mean, tp.vw.hypo.mean), 
+                    names_to = 'Layer',
+                    values_to = 'tp.val') %>% 
+          mutate(Layer = replace(Layer, grepl('tp.vw.epi.mean',Layer),'Epi')) %>% 
+          mutate(Layer = replace(Layer, grepl('tp.vw.hypo.mean',Layer),'Hypo'))),
+       aes(x=year, y=tp.val, color=Layer)) +
+  geom_point() + 
+  stat_smooth(method="loess", 
+              linewidth=0.5,
+              se=F, 
+              show.legend=F,
+              mapping=aes(alpha=0.1)) + 
+  scale_y_continuous(limits=c(15,60)) +
+  scale_x_continuous(limits=c(2000,2021)) +
+  labs(title='Epi and Hypo TP contribution 2000-2021',
+       y='TP ppb (vol. weighted)',
+       x='Date') +
+  theme_bw() +
+  theme(title=element_text(size=10))
+
+           
+
+
+
+
 
 
 

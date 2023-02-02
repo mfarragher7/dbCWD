@@ -390,7 +390,6 @@ phos$year = lubridate::year(phos$date)
 phos$month = lubridate::month(phos$date)
 
 
-#many values different from CWD dbCWD values, not good
 
 
 #save
@@ -398,110 +397,12 @@ phos = phos %>% select(-midascheck)
 phos = phos %>% mutate(sampleid=paste(midas, basin, date, sep="_"))
 
 
-write.csv(phos, "C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/library/tp.cwd.csv", row.names = F)
 
 
 
 
 
 
-
-
-
-
-
-
-#Chl ######
-chl = read.csv("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/db.raw/db.dep/CWD_CHLORO.csv")
-str(chl)
-
-
-#lowercase everything and rename cols
-chl = chl %>% 
-  set_names(~ str_to_lower(.)) %>% 
-  mutate_all(~ str_to_lower(.)) %>% 
-  dplyr::rename(lake=laknam) %>% 
-  dplyr::rename(datetime=sampdate)
-
-#format date
-chl = chl %>% 
-  separate(datetime, c("date", "time"), sep = " ", remove=T) %>% 
-  mutate(date = as.Date(date))
-
-length(unique(chl$date)) #number of unique sample dates
-
-#rename lakes
-unique(chl$lake)
-#check midas first
-chl = chl %>% mutate(midascheck = paste(midas,lake))
-unique(chl$midascheck)
-plyr::count(chl$lake)
-plyr::count(chl$midascheck)
-
-temp1 = plyr::count(chl$lake)
-
-#rename
-chl = chl %>% 
-  mutate(lake = replace(lake, midas==9961,'annabessacook')) %>% 
-  mutate(lake = replace(lake, midas==3828,'berry')) %>% 
-  mutate(lake = replace(lake, midas==5242,'buker')) %>% 
-  mutate(lake = replace(lake, midas==5310,'carlton')) %>% 
-  mutate(lake = replace(lake, midas==5236,'cobbossee')) %>% 
-  mutate(lake = replace(lake, midas==8065,'little cobbossee')) %>% 
-  mutate(lake = replace(lake, midas==3814,'cochnewagon')) %>% 
-  mutate(lake = replace(lake, midas==5265, 'desert')) %>%
-  mutate(lake = replace(lake, midas==3830,'dexter')) %>% 
-  mutate(lake = replace(lake, midas==5252,'horseshoe')) %>% 
-  mutate(lake = replace(lake, midas==5304,'hutchinson')) %>% 
-  mutate(lake = replace(lake, midas==5302,'jamies')) %>% 
-  mutate(lake = replace(lake, midas==5244,'jimmy')) %>% 
-  mutate(lake = replace(lake, midas==5316,'kezar')) %>%   
-  mutate(lake = replace(lake, midas==5246,'loon')) %>% 
-  mutate(lake = replace(lake, midas==5312,'maranacook')) %>% 
-  mutate(lake = replace(lake, midas==98,'narrows upper')) %>% 
-  mutate(lake = replace(lake, midas==103,'narrows lower')) %>% 
-  mutate(lake = replace(lake, midas==5254,'pleasant')) %>% 
-  mutate(lake = replace(lake, midas==5250,'little purgatory')) %>% 
-  mutate(lake = replace(lake, midas==5238,'sand')) %>% 
-  mutate(lake = replace(lake, midas==5300,'shed')) %>% 
-  mutate(lake = replace(lake, midas==5307,'torsey')) %>% 
-  mutate(lake = replace(lake, midas==3832,'wilson')) %>% 
-  mutate(lake = replace(lake, midas==5240,'woodbury'))
-
-temp2 = plyr::count(chl$lake)
-
-sum(temp1$freq)
-sum(temp2$freq)
-unique(chl$lake)
-
-
-#* QC ########
-names(chl)
-str(chl)
-unique(chl$agency)
-unique(chl$project)
-unique(chl$depth)
-chl$depth = as.numeric(chl$depth)
-unique(chl$type)
-chl = chl %>% mutate(type = na_if(type,'')) #NA where blank
-#chla
-unique(chl$chla)
-chl$chla = as.numeric(chl$chla)
-summary(chl$chla) 
-unique(chl$r) # d??? might mean "DEP" for lab
-chl = chl %>% mutate(r = na_if(r,'')) #NA where blank
-unique(chl$l)
-unique(chl$flag) #empty
-
-#get year and month
-chl$year = lubridate::year(chl$date)
-chl$month = lubridate::month(chl$date)
-
-
-#save
-chl = chl %>% select(-midascheck)
-
-write.csv(chl, "C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/library/chlorophyll.dep.csv", row.names = F)
 
 
 

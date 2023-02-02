@@ -540,11 +540,11 @@ length(intersect(test$tp.vw, test$test2))
 
 #compare to wendy's work
 #2009-09-15
-check = tp.kg %>% filter(date=='2009-09-15')
-sum(check$tp.kg)
+#check = tp.kg %>% filter(date=='2009-09-15')
+#sum(check$tp.kg)
 #wendy didn't include 8+ m grab but I did. 
-check2 = tp.kg %>% filter(date=='2009-08-18')
-sum(check2$tp.kg)
+#check2 = tp.kg %>% filter(date=='2009-08-18')
+#sum(check2$tp.kg)
 
 check = tp.sum %>% filter(date=='2009-09-15')
 check$tp.vw
@@ -603,11 +603,11 @@ ggplot(tp.yr, aes(x=year, y=tp.vw.mean)) +
   geom_point() + 
   stat_smooth(method="loess", 
               linewidth=0.5,
-              se=F, 
+              se=T,
               show.legend=F,
-              mapping=aes(alpha=0.1)) + 
+              alpha=0.1) + 
   scale_y_continuous(limits=c(15,30)) +
-  labs(title='Internal phosphorus loading 1991-2021',
+  labs(title='Total Phosphorus 1991-2021',
        y='TP ppb (vol. weighted)',
        x='Date') +
   theme_bw() +
@@ -625,7 +625,7 @@ ggplot(tp.yr, aes(x=year, y=tp.vw.mean)) +
               linewidth=0.5,
               se=F, 
               show.legend=F,
-              mapping=aes(alpha=0.1)) + 
+              alpha=0.1) + 
   scale_y_continuous(limits=c(10,35)) +
   scale_x_continuous(limits=c(1999.5,2022)) +
   labs(title='Standard deviation of TP within season 2000-2021',
@@ -650,16 +650,28 @@ ggplot(temp,
   geom_point() + 
   stat_smooth(method="loess", 
               linewidth=0.5,
-              se=F, 
+              se=T, 
               show.legend=F,
-              mapping=aes(alpha=0.1)) + 
+              span=0.95,
+              alpha=0.08) + 
   scale_y_continuous(limits=c(10,40)) +
   scale_x_continuous(limits=c(2000,2021)) +
+  scale_color_manual(values=c('red','blue','green')) +
   labs(title='TP seasonal variability 2000-2021',
        y='TP ppb (vol. weighted)',
        x='Date') +
   theme_bw() +
   theme(title=element_text(size=10))
+
+
+#quick stats
+mean(tp.yr$tp.vw.mean)
+sd(tp.yr$tp.vw.mean)
+tp.yr$mintomax = tp.yr$tp.vw.max - tp.yr$tp.vw.min
+mean(tp.yr$mintomax, na.rm=T)
+
+
+
 
 
 #epi/hypo contribution
@@ -674,9 +686,9 @@ ggplot((tp.yr %>%
   geom_point() + 
   stat_smooth(method="loess", 
               linewidth=0.5,
-              se=F, 
+              se=T, 
               show.legend=F,
-              mapping=aes(alpha=0.1)) + 
+              alpha=0.08) + 
   scale_y_continuous(limits=c(15,60)) +
   scale_x_continuous(limits=c(2000,2021)) +
   labs(title='Epi and Hypo TP contribution 2000-2021',
@@ -686,6 +698,11 @@ ggplot((tp.yr %>%
   theme(title=element_text(size=10))
 
            
+mean(tp.yr$tp.vw.epi.mean, na.rm=T)
+sd(tp.yr$tp.vw.epi.mean, na.rm=T)
+
+mean(tp.yr$tp.vw.hypo.mean, na.rm=T)
+sd(tp.yr$tp.vw.hypo.mean, na.rm=T)
 
 
 

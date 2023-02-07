@@ -100,7 +100,7 @@ sum(temp2$freq)
 
 #create sample id
 deppro = deppro %>% 
-  mutate(sampleid=paste(midas, station, date, agency, sep="_"))
+  mutate(sampID=paste(midas, station, date, agency, sep="_"))
 
 #get year and month
 deppro$year = lubridate::year(deppro$date)
@@ -171,7 +171,7 @@ sum(temp2$freq)
 
 #create sample id
 cwdpro = cwdpro %>% 
-  mutate(sampleid=paste(midas, station, date, agency, sep="_"))
+  mutate(sampID=paste(midas, station, date, agency, sep="_"))
 
 #get year and month
 cwdpro$year = lubridate::year(cwdpro$date)
@@ -185,10 +185,10 @@ cwdpro$month = lubridate::month(cwdpro$date)
 names(cwdpro)
 names(deppro)
 
-#subset 98-18. will be pulling out unique profiles (CWD only) from sampleIDs to add to 'complete' db
+#subset 98-18. will be pulling out unique profiles (CWD only) from sampIDs to add to 'complete' db
 cwdpro98to18 = cwdpro %>% 
   filter(date > '1998-01-01' & date < '2018-12-31') %>% 
-  select(sampleid, midas,lake,station,date,agency,depth,temp,oxygen,oxymeth,year,month) %>% 
+  select(sampID, midas,lake,station,date,agency,depth,temp,oxygen,oxymeth,year,month) %>% 
   mutate(db='cwd') %>% 
   mutate(meter=NA) %>% 
   mutate(calib=NA)
@@ -196,12 +196,12 @@ cwdpro98to18 = cwdpro %>%
 #subset same timeframe. wont be using this subsetted db in 'complete' db 
 deppro98to18 = deppro %>% 
   filter(date > '1998-01-01' & date < '2018-12-31') %>% 
-  select(sampleid,midas,lake,station,date,agency,depth,temp,oxygen,oxymeth,meter,calib,year,month) %>% 
+  select(sampID,midas,lake,station,date,agency,depth,temp,oxygen,oxymeth,meter,calib,year,month) %>% 
   mutate(db='dep')
 
-#get sampleIDs as vector
-cwdproID = unique(cwdpro98to18$sampleid)
-depproID = unique(deppro98to18$sampleid)
+#get sampIDs as vector
+cwdproID = unique(cwdpro98to18$sampID)
+depproID = unique(deppro98to18$sampID)
 
 #identify IDs that exist in cwd db only
 cwdonly = setdiff(cwdproID, depproID)
@@ -216,12 +216,12 @@ procheck = rbind(cwdpro98to18, deppro98to18)
 uniquepros = c(cwdonly, deponly)
 
 #subset of all profiles that are in either cwd or dep dbs but NOT BOTH
-prochecksub = procheck[procheck$sampleid %in% uniquepros, ]
+prochecksub = procheck[procheck$sampID %in% uniquepros, ]
 #check
-unique(prochecksub$sampleid) #97 total 
+unique(prochecksub$sampID) #97 total 
 
 #subset of cwd 98-18 profiles NOT in dep df, to be added to deppro df
-cwdpre2019unique = cwdpro98to18[cwdpro98to18$sampleid %in% cwdonly, ]
+cwdpre2019unique = cwdpro98to18[cwdpro98to18$sampID %in% cwdonly, ]
 
 #subset cwd 2019/20
 cwdpro1920 = cwdpro %>% 
@@ -307,7 +307,7 @@ sum(temp2$freq)
 
 #create sample id
 cwdpro21 = cwdpro21 %>% 
-  mutate(sampleid=paste(midas, station, date, agency, sep="_")) %>% 
+  mutate(sampID=paste(midas, station, date, agency, sep="_")) %>% 
   mutate(db='cwd') %>% 
   select(-midascheck, -project)
 
@@ -351,8 +351,8 @@ unique(profiles$calib)
 profiles = profiles %>% mutate(calib = na_if(calib,''))
 profiles$midas = as.numeric(profiles$midas)
 unique(profiles$lake)
-unique(profiles$sampleid)
-length(unique(profiles$sampleid)) #6308 unique profiles
+unique(profiles$sampID)
+length(unique(profiles$sampID)) #6308 unique profiles
 unique(profiles$db)
 str(profiles)
 
@@ -374,7 +374,7 @@ names(profiles)
 str(profiles)
 
 #summary of each profile
-spro = ddply(profiles, .(sampleid, midas, lake, station, date, agency, db), summarize, 
+spro = ddply(profiles, .(sampID, midas, lake, station, date, agency, db), summarize, 
              profile.max.depth = max(depth),
              #temp - min, max, mean, sd, se, thermocline depth, etc
              temp.min = min(temp), 
@@ -397,12 +397,12 @@ spro = ddply(profiles, .(sampleid, midas, lake, station, date, agency, db), summ
              do.max.depth=NA)
 
 #save sample IDs
-length(unique(profiles$sampleid))
-samp = unique(profiles$sampleid)
+length(unique(profiles$sampID))
+samp = unique(profiles$sampID)
 
 # thermocline depth and epi/hypo temps
 for (i in 1:length(samp)){ #for every unique sample,
-  td = profiles[profiles$sampleid == samp[i], ] #temp dataframe that subsets profile df by each sampleid
+  td = profiles[profiles$sampID == samp[i], ] #temp dataframe that subsets profile df by each sampID
   td = td[!duplicated(td$depth), ] #remove duplicate depths
   thermo = thermo.depth(td$temp, td$depth, seasonal=FALSE, index=FALSE, mixed.cutoff=1) #run thermo.depth function
   spro[i,14] = thermo[1]  #paste thermocline depth in 12th column of row i*j == i in spro df
@@ -421,7 +421,7 @@ for (i in 1:length(samp)){ #for every unique sample,
 
 # get meta depths
 for (i in 1:length(samp)){ #for every unique sample,
-  td = profiles[profiles$sampleid == samp[i], ] #temp dataframe that subsets profile df by each sampleid
+  td = profiles[profiles$sampID == samp[i], ] #temp dataframe that subsets profile df by each sampID
   td = td[!duplicated(td$depth), ] #remove duplicate depths
   meta = meta.depths(td$temp, td$depth, slope=0.1, seasonal=F, mixed.cutoff=1) 
   spro[i,18] = meta[1]   #top
@@ -429,7 +429,7 @@ for (i in 1:length(samp)){ #for every unique sample,
 
 # get max DO depth for each profile
 for (i in 1:length(samp)){ #for every unique sample,
-  td = profiles[profiles$sampleid == samp[i], ] #temp dataframe that subsets profile df by each sampleid
+  td = profiles[profiles$sampID == samp[i], ] #temp dataframe that subsets profile df by each sampID
   td = td[td$oxygen == max(td$oxygen),] #subset row of only max oxygen
   do.max.depth = td$depth #save depth at max do
   spro[i,25] = do.max.depth[1] }   #paste depth of max DO 
@@ -456,7 +456,7 @@ str(spro)
 spro$year = lubridate::year(spro$date)
 spro$month = lubridate::month(spro$date)
 
-temp = plyr::count(spro$sampleid) #one of each....good, if true.,..,
+temp = plyr::count(spro$sampID) #one of each....good, if true.,..,
 
 
 write.csv(spro, "C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/library/profiles.1975-2021.summary.csv", row.names = F)
@@ -475,7 +475,7 @@ wb = read.csv("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/db.raw/bathy.wilson.cs
 #summary table for just wilson
 subp = profiles %>% filter(lake=='wilson')            
 
-pbj = ddply(subp, .(sampleid, midas, lake, date), summarize, 
+pbj = ddply(subp, .(sampID, midas, lake, date), summarize, 
             temp.min = min(temp), 
             temp.max = max(temp), 
             temp.mean = mean(temp),
@@ -489,12 +489,12 @@ pbj = ddply(subp, .(sampleid, midas, lake, date), summarize,
 
 
 #save sample IDs
-length(unique(pbj$sampleid))
-samp = unique(pbj$sampleid)
+length(unique(pbj$sampID))
+samp = unique(pbj$sampID)
 
 # thermocline depth and epi/hypo temps
 for (i in 1:length(samp)){ #for every unique sample,
-  td = subp[subp$sampleid == samp[i], ] #temp dataframe that subsets profile df by each sampleid
+  td = subp[subp$sampID == samp[i], ] #temp dataframe that subsets profile df by each sampID
   td = td[!duplicated(td$depth), ] #remove duplicate depths
   thermo = thermo.depth(td$temp, td$depth, seasonal=FALSE, index=FALSE, mixed.cutoff=1) #run thermo.depth function
   pbj[i,10] = thermo[1]  #paste thermocline depth in 12th column of row i*j == i in spro df
@@ -525,7 +525,7 @@ epi.temperature(td$temp, td$depth, wb$vol.m3, wb$depth.top)
 #should be area instead of volume, damn
 
 for (i in 1:length(samp)){ #for every unique sample,
-  td = subp[subp$sampleid == samp[i], ] #temp dataframe that subsets profile df by each sampleid
+  td = subp[subp$sampID == samp[i], ] #temp dataframe that subsets profile df by each sampID
   td = td[!duplicated(td$depth), ] #remove duplicate depths
   epi.t = epi.temperature(td$temp, td$depth, wb$vol.m3, wb$depth.top)  #get mean epi temp
   pbj[i,13] = epi.t[1] #paste in df

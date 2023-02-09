@@ -38,7 +38,7 @@ pro$mm = factor(pro$mm, levels=c('Jan','Feb','Mar','Apr','May','Jun','Jul','Aug'
 str(pro)
 
 #check for dups
-temp = plyr::count(pro$sampleid)
+temp = plyr::count(pro$sampID)
 
 
 
@@ -81,11 +81,12 @@ ggplot(filter(pptempvars,
   stat_smooth(method="loess", linewidth=0.75, se=F, show.legend=F) + 
   facet_wrap(~mm, ncol=2, nrow=2, scale='fixed') +
   scale_x_date(date_labels="%Y") +
-  scale_color_manual(values=c('red3','blue','green'),
+  scale_color_manual(values=c('red','blue','green'),
                      guide=guide_legend(NULL,override.aes=list(shape=16,size=2))) +
   labs(title='Pleasant Pond',
        x="Date",
        y="Temp C") + 
+  theme_bw() +
   theme(title=element_text(size=10))
 
 
@@ -155,7 +156,7 @@ mmpro = ddply(mmprosummer,
               .(midas, lake, station, ym),
               summarize, 
               #n profiles
-              n.profiles = length(unique(sampleid)),
+              n.profiles = length(unique(sampID)),
               #temp
               mm.temp.min = mean(temp.min), #avg monthly min
               mm.temp.max = mean(temp.max), #avg monthly max
@@ -240,14 +241,14 @@ summerpro = pro %>%
   filter(dm >= '06-01' & dm <= '09-15')
 temp = plyr::count(summerpro$year)
 sum(temp$freq)
-length(summerpro$sampleid)
+length(summerpro$sampID)
 #stations as factors
 
 yrpro = ddply(summerpro,
               .(lake, station, year),
               summarize, 
               #n profiles
-              n.profiles = length(unique(sampleid)),
+              n.profiles = length(unique(sampID)),
               #temp
               yr.temp.min = mean(temp.min), #avg monthly min
               yr.temp.max = mean(temp.max), #avg monthly max
@@ -517,14 +518,19 @@ ggplot(filter(yrpro,
 #sens slope
 
 
-library(MannKendall)
+library(Kendall)
+
+#mann kendall for each lake in summary table. test
 
 
+#test
+
+test = yrpro %>% filter(lake=='pleasant')
+MannKendall(test$yr.temp.mean)
 
 
-
-
-
+ytrends = ddply(yrpro, .(lake), summarize, 
+                )
 
 
 

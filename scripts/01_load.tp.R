@@ -108,7 +108,7 @@ summary(phos$tp.ppm)
 phos$year = lubridate::year(phos$date)
 phos$month = lubridate::month(phos$date)
 phos = phos %>% select(-midascheck)
-phos = phos %>% mutate(sampleid=paste(midas, station, date, agency, sep="_"))
+phos = phos %>% mutate(sampID=paste(midas, station, date, agency, sep="_"))
 
 #save
 

@@ -15,7 +15,6 @@ pptp = tp %>% filter(lake=='pleasant')
 #2000 through 2021... where's 1998, 1999? plus need all the older data too....
 str(pptp)
 pptp$date = as.Date(pptp$date)
-pptp = pptp %>% rename(sampID = sampleid)
 
 #workflow
 #average together reps
@@ -494,39 +493,39 @@ tp.vw = join(tp.clean, bathy, by='depth')
 tp.vw$tp.kg = (tp.vw$tp * tp.vw$vol * 1000)
 
 #* drop 9m rows ######################
-#tp.vw
-#maybe later
-
-
+tp.vw = tp.vw %>% 
+  filter(depth < 9)
 
 #get summary df for total P vol weighted kg
-tp.sum = ddply(tp.vw, .(sampID, date, set), summarize,
+tp.sum = ddply(tp.vw, .(sampID, date, set), 
+               summarize,
+               depth.max = max(depth),
                tp.kg.total = sum(tp.kg),
                tp.kg.epi = NA,
                tp.kg.hypo = NA,
                tp.kg.min = min(tp.kg),
                tp.kg.max = max(tp.kg), 
                tp.kg.mean = mean(tp.kg),
-               tp.kg.sd = sd(tp.kg),
-               pro.depth = max(depth))
+               tp.kg.sd = sd(tp.kg))
 str(tp.sum)
+
 #get epi and hypo tpkg
 #save ID
-sampID = unique(tp.sum$sampID)
+sampID = unique(tp.vw$sampID)
 for (i in 1:length(sampID)){ 
   td = tp.vw[tp.vw$sampID == sampID[i], ] #subset by sample
   td.epi = td[td$depth <= 5,] #subset top 5m from each profile
   epi.kg = sum(td.epi$tp.kg) #mean tpkg of top 5m
-  tp.sum[i,5] = epi.kg[1]   #paste value
+  tp.sum[i,6] = epi.kg[1]   #paste value
   td.hypo = td[td$depth > 5,] #subset below 5m from each profile
   hypo.kg = sum(td.hypo$tp.kg) #mean tpkg of 6-9m
-  tp.sum[i,6] = hypo.kg[1]   #paste value
+  tp.sum[i,7] = hypo.kg[1]   #paste value
 }
 
 #divide by total vol for actual volume weighted
 tp.sum$tp.vw = tp.sum$tp.kg.total / 6.002712 #PP total vol
 tp.sum$tp.vw.epi = tp.sum$tp.kg.epi / (2.021572 + 1.400789 +0.993113 + 0.771754 + 0.514930)
-tp.sum$tp.vw.hypo = tp.sum$tp.kg.hypo / (0.219404 + 0.067407 + 0.013743 + 0.013743)
+tp.sum$tp.vw.hypo = tp.sum$tp.kg.hypo / (0.219404 + 0.067407 + 0.013743)
 
 #check 
 test = tp.sum
@@ -538,17 +537,24 @@ length(intersect(test$tp.kg.total, test$test)) #134/135
 test$test2 = test$tp.vw.epi + test$tp.vw.hypo  
 length(intersect(test$tp.vw, test$test2))
 
+
 #compare to wendy's work
 #2009-09-15
-#check = tp.kg %>% filter(date=='2009-09-15')
-#sum(check$tp.kg)
-#wendy didn't include 8+ m grab but I did. 
-#check2 = tp.kg %>% filter(date=='2009-08-18')
-#sum(check2$tp.kg)
-
+check = tp.vw %>% filter(date=='2009-09-15')
+sum(check$tp.kg)
 check = tp.sum %>% filter(date=='2009-09-15')
 check$tp.vw
-#28.92 compared to Wendy's 27.82, again i included bottom grab
+#27.82 compared to Wendy's 27.82, 
+#dropping bottom depth helped 
+
+#drop core with only 5m max depth 
+
+tp.sum = tp.sum %>% 
+  filter(depth.max > 5)
+
+#list of sample dates 
+profile.dates = plyr::count(tp.sum$date)
+
 
 
 #YEARLY avg ############
@@ -570,16 +576,170 @@ tp.yr = ddply(tp.sum, .(year), summarize,
               tp.vw.hypo.mean = mean(tp.vw.hypo),
               tp.vw.hypo.sd = sd(tp.vw.hypo))
    
+
+
 #add 90s values for total mean TPppb
 tp90s = data.frame(year = c(1991, 1992, 1992, 1994, 1995,
                             1996, 1997, 1998, 1999), 
                    tp.vw.mean = c(28, 23, 22, 19, 24, 23, 22, 25, 20))
              
 tp.yr = dplyr::bind_rows(tp90s, tp.yr)              
-         
 
 
+
+
+#* sample check ################       
+#check every year for n samples
+#and check values too, against wendy's db
+
+n.dates = tp.yr %>% 
+  select(year,n) %>% 
+  filter(year > 1999)
  
+tp.sub = tp.sum %>% 
+  select(year, date, tp.vw, set, depth.max)
+
+
+
+
+#2021
+#year average = 19.81528 
+#wendy avg = 19.97
+tp.sub %>% filter(year==2021)
+#5/21/2021	17.05
+#6/17/2021	19.12  
+#7/6/2021	18.17   vs 17.6
+#8/6/2021	20.98      
+#9/16/2021	22.51   
+#10/8/2021	22.01 
+#July 6 off by a little bit more than the others, 
+# because i extended the 5.5m core to 6m and wendy didn't, so ~0.5ppb overestimate
+#pretty much okay with that
+
+
+
+
+
+
+
+
+
+
+
+
+#2009
+#year average = 23.45768 
+#wendy avg = 23.64
+tp.sub %>% filter(year==2009)
+#missing 2009-07-10, TP = 25.19
+# values from wendy for 7 dates in 2009
+16.8
+24.22
+25.19 #   * missing from my db
+23.32
+27.00
+27.82
+21.77
+#within 0.2 for all calculations
+
+
+#2008 
+#year average = 23.04316 
+#wendy avg = 23.10
+tp.sub %>% filter(year==2008)
+#both have all 7 dates, two in august
+#wendy's = 
+22.08
+19.63
+18.52
+24.51
+24.04
+28.85
+24.07
+#within 0.2 for all calculations
+
+
+#2007
+#year average = 21.34112 
+#wendy avg = 21.38
+tp.sub %>% filter(year==2007)
+# 7 dates including early november
+#5/29/2007	21.85
+#6/21/2007	17.24
+#7/16/2007	22.20
+#8/10/2007	20.58
+#9/12/2007	22.39
+#10/1/2007	21.67
+#11/2/2007	23.70
+#within 0.2 for all calculations
+
+
+#2006
+#year average = 23.52523 
+#wendy avg = 23.54
+tp.sub %>% filter(year==2006)
+#5/25/2006	23.20
+#6/20/2006	19.60
+#7/21/2006	21.10
+#8/25/2006	24.85
+#9/27/2006	21.55
+#10/26/2006	30.96
+#within 0.1 for all calculations
+
+
+
+#2005
+#year average = 21.09382 
+#wendy avg = 
+tp.sub %>% filter(year==2005)
+#only 2 samples, both in July
+
+
+
+#2004
+#year average = 21.36093 
+#wendy avg = 
+tp.sub %>% filter(year==2004)
+
+
+
+
+#2003
+#year average = 23.60264 
+#wendy avg = 
+tp.sub %>% filter(year==2003)
+
+
+
+
+
+
+#2002
+#year average = 18.32488 
+#wendy avg = 18.33
+tp.sub %>% filter(year==2002)
+#5/29/2002	16.33
+#6/26/2002	18.75
+#7/26/2002	15.14
+#8/29/2002	15.68
+#9/30/2002	18.54
+#10/29/2002	25.51
+#within 0.01 for all samples wowowow
+
+
+
+
+
+
+tp.yr %>% 
+  select(year, tp.vw.mean)
+
+
+
+
+
+
+
 #PLOTS ########
 #quick plot for fun
 ggplot(tp.sum, aes(x=date, y=tp.vw, color=set)) + 
@@ -614,7 +774,7 @@ ggplot(tp.yr, aes(x=year, y=tp.vw.mean)) +
     theme(title=element_text(size=10))
   
  
-#seasonal variability, error bars
+#seasonal variability, error bars as std dev
 ggplot(tp.yr, aes(x=year, y=tp.vw.mean)) + 
   geom_point() + 
   geom_errorbar(aes(ymin=tp.vw.mean - tp.vw.sd, 
@@ -666,6 +826,7 @@ ggplot(temp,
 
 #quick stats
 mean(tp.yr$tp.vw.mean)
+mean(tp.yr$tp.vw.sd, na.rm=T)
 sd(tp.yr$tp.vw.mean)
 tp.yr$mintomax = tp.yr$tp.vw.max - tp.yr$tp.vw.min
 mean(tp.yr$mintomax, na.rm=T)
@@ -704,6 +865,35 @@ sd(tp.yr$tp.vw.epi.mean, na.rm=T)
 mean(tp.yr$tp.vw.hypo.mean, na.rm=T)
 sd(tp.yr$tp.vw.hypo.mean, na.rm=T)
 
+
+
+
+#try yearly mean ft ribbon of standard dev
+
+ggplot(tp.yr,
+       aes(x=year, y=tp.vw.mean)) +
+  geom_point(shape=19,
+             size=1.5) + 
+  stat_smooth(method = "loess", 
+              linewidth = 1,
+              se = F, 
+              show.legend = F,
+              span = .8,
+              color = 'lightblue2') + 
+  geom_ribbon(aes(ymin = tp.vw.mean - tp.vw.sd,
+                  ymax = tp.vw.mean + tp.vw.sd,
+                  color = 'red',
+                  fill ='red'),
+              alpha = 0.2, 
+              show.legend = F) +
+  scale_y_continuous(limits=c(10,35)) +
+  scale_x_continuous(limits=c(2000,2021)) +
+  #scale_color_manual(values=c('red','blue','green')) +
+  labs(title='Pleasant Pond TP ppb: yearly mean and standard dev. 2000-2021',
+       y='TP ppb (vol. weighted)',
+       x='Date') +
+  theme_bw() +
+  theme(title=element_text(size=10))
 
 
 

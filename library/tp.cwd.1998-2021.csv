@@ -1,4 +1,4 @@
-"midas","lake","station","date","agency","depth","tp.ppm","type","r","year","month","sampleid"
+"midas","lake","station","date","agency","depth","tp.ppm","type","r","year","month","sampID"
 "9961","annabessacook",1,2021-05-27,"cw",9,0.023,"c",1,2021,5,"9961_1_2021-05-27_cw"
 "9961","annabessacook",2,2021-05-27,"cw",5,0.016,"c",1,2021,5,"9961_2_2021-05-27_cw"
 "9961","annabessacook",1,2021-06-23,"cw",8,0.018,"g",1,2021,6,"9961_1_2021-06-23_cw"

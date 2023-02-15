@@ -518,24 +518,47 @@ ggplot(filter(yrpro,
 #sens slope
 
 
-library(Kendall)
 
 #mann kendall for each lake in summary table. test
 
 
+library(Kendall)
+
+library(zyp)
+
+
 #test
 
-test = yrpro %>% filter(lake=='pleasant')
-MannKendall(test$yr.temp.mean)
+cc = yrpro %>% filter(lake=='cochnewagon' & station==1)
+MannKendall(cc$yr.temp.mean)
+zyp.sen(yr.temp.mean ~ year, cc)
+
+ccaug = mmpro %>% filter(lake=='cochnewagon' & station==1, mm=='Aug')
+MannKendall(ccaug$mm.temp.mean)
+zyp.sen(year~mm.temp.mean, ccaug)
+zyp.sen(mm.temp.mean~year, ccaug)
+
+
+
+aaaug = mmpro %>% filter(lake=='annabessacook' & station==1, mm=='Aug')
+MannKendall(aaaug$mm.temp.mean)
+zyp.sen(year~mm.temp.mean, aaaug)
+
+
+#compare packages
+cobbaug = mmpro %>% filter(lake=='cobbossee' & station==1, mm=='Aug')
+
+MannKendall(cobbaug$mm.temp.mean)
+mk.test(cobbaug$mm.temp.mean)
+
+zyp.sen(mm.temp.mean~year, cobbaug)
+sens.slope(cobbaug$mm.temp.mean)
+
+
 
 
 ytrends = ddply(yrpro, .(lake), summarize, 
                 )
-
-
-
-
-
 
 
 

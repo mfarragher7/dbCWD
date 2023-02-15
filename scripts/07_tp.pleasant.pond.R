@@ -563,10 +563,10 @@ names(tp.sum)
 
 tp.yr = ddply(tp.sum, .(year), summarize,
               n = length(unique(date)),
-              tp.vw.min = min(tp.vw),
-              tp.vw.max = max(tp.vw), 
               tp.vw.mean = mean(tp.vw),
               tp.vw.sd = sd(tp.vw),
+              tp.vw.min = min(tp.vw),
+              tp.vw.max = max(tp.vw), 
               tp.vw.epi.min = min(tp.vw.epi),
               tp.vw.epi.max = max(tp.vw.epi), 
               tp.vw.epi.mean = mean(tp.vw.epi),
@@ -600,7 +600,7 @@ tp.sub = tp.sum %>%
   select(year, date, tp.vw, set, depth.max)
 
 
-
+#2022
 
 #2021
 #year average = 19.81528 
@@ -616,16 +616,27 @@ tp.sub %>% filter(year==2021)
 # because i extended the 5.5m core to 6m and wendy didn't, so ~0.5ppb overestimate
 #pretty much okay with that
 
+#2020
 
+#2019
 
+#2018
 
+#2017
 
+#2016
 
+#2015
 
+#2014
 
+#2013
 
+#2012
 
+#2011
 
+#2010
 
 #2009
 #year average = 23.45768 
@@ -642,7 +653,6 @@ tp.sub %>% filter(year==2009)
 21.77
 #within 0.2 for all calculations
 
-
 #2008 
 #year average = 23.04316 
 #wendy avg = 23.10
@@ -658,7 +668,6 @@ tp.sub %>% filter(year==2008)
 24.07
 #within 0.2 for all calculations
 
-
 #2007
 #year average = 21.34112 
 #wendy avg = 21.38
@@ -673,7 +682,6 @@ tp.sub %>% filter(year==2007)
 #11/2/2007	23.70
 #within 0.2 for all calculations
 
-
 #2006
 #year average = 23.52523 
 #wendy avg = 23.54
@@ -686,33 +694,21 @@ tp.sub %>% filter(year==2006)
 #10/26/2006	30.96
 #within 0.1 for all calculations
 
-
-
 #2005
 #year average = 21.09382 
 #wendy avg = 
 tp.sub %>% filter(year==2005)
 #only 2 samples, both in July
 
-
-
 #2004
 #year average = 21.36093 
 #wendy avg = 
 tp.sub %>% filter(year==2004)
 
-
-
-
 #2003
 #year average = 23.60264 
 #wendy avg = 
 tp.sub %>% filter(year==2003)
-
-
-
-
-
 
 #2002
 #year average = 18.32488 
@@ -726,17 +722,8 @@ tp.sub %>% filter(year==2002)
 #10/29/2002	25.51
 #within 0.01 for all samples wowowow
 
-
-
-
-
-
 tp.yr %>% 
   select(year, tp.vw.mean)
-
-
-
-
 
 
 

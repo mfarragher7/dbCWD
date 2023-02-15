@@ -110,7 +110,38 @@ phos$month = lubridate::month(phos$date)
 phos = phos %>% select(-midascheck)
 phos = phos %>% mutate(sampID=paste(midas, station, date, agency, sep="_"))
 
+
+
+
+
+#more data ########
+#load missing data
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #save
+
+
+
+
+
+
+
+
+
+
+
 
 write.csv(phos, "C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/library/tp.cwd.1998-2021.csv", row.names = F)
 

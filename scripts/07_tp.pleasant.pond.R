@@ -56,10 +56,35 @@ temp2 = pptpr %>%
 
 #checked it out, can round all decimals up to nearest whole number
 pptpr$dep.new = ceiling(pptpr$depth)
-temp = plyr::count(pptpr$dep.new)
+temp1 = plyr::count(pptpr$dep.new)
 
 #just station 1 for now....
 pptps1 = pptpr %>% filter(station==1)
+
+
+#trying this a different way
+pptest = pptps1
+
+core.grab = ddply(pptps1, .(sampID), summarize, core.grab=NA)
+
+sampID = unique(pptest$sampID)
+
+for (i in 1:length(sampID)){ #for every unique sample,
+  td = pptest[pptest$sampID == sampID[i], ] #subset each sampID
+  ifelse((grepl('c',td$type) & grepl('g',td$type)), 
+         (core.grab[i,2] = 'b'),
+         ifelse((grepl('c',td$type) & !grepl('g',td$type)), 
+                (core.grab[i,2] = 'c'),  #paste c
+                ifelse((!grepl('c',td$type) & grepl('g',td$type)), 
+                       (core.grab[i,2] = 'g'), #paste g
+                       NA)))
+}
+                       
+
+
+
+
+
 
 #roundabout way of getting IDs from profiles with 'core AND grab'
 core.grab = ddply(pptps1, .(sampID), summarize, core.grab=NA)
@@ -96,7 +121,7 @@ str(pptpcg)
 
 
 #C+G ########
-#work through profiles with cores and grabs
+#work through profiles with cores AND grabs
 
 cg = pptpcg %>% filter(core.grab=='b')
 
@@ -105,7 +130,13 @@ cg = cg %>%
   mutate(core.dep = ifelse(type=='c', dep.new, NA)) %>% 
   mutate(grab.dep = ifelse(type=='g', dep.new, NA))
 
-#need to know which sampID have enough grabs/ depths to drop here and add to other df
+#check #samples from each date
+check = plyr::count(cg$sampID)
+
+
+
+
+#need to know which sampIDs have enough grabs/ depths to drop here and add to other df
 cgsum = ddply(cg, .(sampID, date), summarize, 
               tp.mean = mean(tp),
               n.core = length(which(type=='c')),

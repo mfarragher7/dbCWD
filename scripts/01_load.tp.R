@@ -119,7 +119,7 @@ phos = phos %>% mutate(sampID=paste(midas, station, date, agency, sep="_"))
 moretp = read.csv('https://raw.githubusercontent.com/mfarragher7/dbCWD/main/db.raw/db.cwd/cwd.tp.missing.data.csv',header=T)
 moretp$year = lubridate::year(moretp$date)
 moretp$month = lubridate::month(moretp$date)
-moretp$agency = 'cwd'
+moretp$agency = 'cw'
 moretp = moretp %>% 
   mutate(sampID=paste(midas, station, date, agency, sep="_")) %>% 
   rename(tp.ppm=tp) %>% 

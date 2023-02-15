@@ -116,32 +116,18 @@ phos = phos %>% mutate(sampID=paste(midas, station, date, agency, sep="_"))
 
 #more data ########
 #load missing data
+moretp = read.csv('https://raw.githubusercontent.com/mfarragher7/dbCWD/main/db.raw/db.cwd/cwd.tp.missing.data.csv',header=T)
+moretp$year = lubridate::year(moretp$date)
+moretp$month = lubridate::month(moretp$date)
+moretp$agency = 'cwd'
+moretp = moretp %>% 
+  mutate(sampID=paste(midas, station, date, agency, sep="_")) %>% 
+  rename(tp.ppm=tp) %>% 
+  rename(r=rep)
 
-
-
-
-
-
-
-
-
-
-
-
-
+#join
+phos = rbind(phos, moretp)
 
 #save
-
-
-
-
-
-
-
-
-
-
-
-
 write.csv(phos, "C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/library/tp.cwd.1998-2021.csv", row.names = F)
 

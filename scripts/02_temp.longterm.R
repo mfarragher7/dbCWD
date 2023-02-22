@@ -100,9 +100,8 @@ ggplot(filter(pptempvars,
 #time series stats: mann-kendall, what else
 
 
-
-#ANNA ####
-#annabessacookie first
+#Anna#####
+#annabessacook first
 #stations as factors
 pro$station = factor(pro$station, levels=c(1,2,3,4,5,6,7))
 
@@ -517,57 +516,182 @@ ggplot(filter(yrpro,
 #mann kendall
 #sens slope
 
-
-
-#mann kendall for each lake in summary table. test
-
-
 library(Kendall)
-
 library(zyp)
+library(trend)
+#compare packages/methods
 
-
-#test
-
-cc = yrpro %>% filter(lake=='cochnewagon' & station==1)
-MannKendall(cc$yr.temp.mean)
-zyp.sen(yr.temp.mean ~ year, cc)
-
-ccaug = mmpro %>% filter(lake=='cochnewagon' & station==1, mm=='Aug')
-MannKendall(ccaug$mm.temp.mean)
-zyp.sen(year~mm.temp.mean, ccaug)
-zyp.sen(mm.temp.mean~year, ccaug)
-
-
-
-aaaug = mmpro %>% filter(lake=='annabessacook' & station==1, mm=='Aug')
-MannKendall(aaaug$mm.temp.mean)
-zyp.sen(year~mm.temp.mean, aaaug)
-
-
-#compare packages
+#test cobbossee august temps
 cobbaug = mmpro %>% filter(lake=='cobbossee' & station==1, mm=='Aug')
 
-MannKendall(cobbaug$mm.temp.mean)
-mk.test(cobbaug$mm.temp.mean)
-
-zyp.sen(mm.temp.mean~year, cobbaug)
-sens.slope(cobbaug$mm.temp.mean)
-
-
-
-
-ytrends = ddply(yrpro, .(lake), summarize, 
-                )
+#mean temp from profile. not vol weighted btw
+ggplot(cobbaug, aes(x=year,y=mm.temp.mean)) + geom_point()
+#same mk results
+Kendall::MannKendall(cobbaug$mm.temp.mean)
+trend::mk.test(cobbaug$mm.temp.mean)
+#same sens slope
+zyp::zyp.sen(mm.temp.mean~year, cobbaug)
+trend::sens.slope(cobbaug$mm.temp.mean)
 
 
+#top 5m temps
+ggplot(cobbaug, aes(x=year,y=mm.temp.top5m)) + geom_point()
+cobbaug = cobbaug %>% drop_na(mm.temp.top5m)
+mk = Kendall::MannKendall(cobbaug$mm.temp.top5m)
+ss = trend::sens.slope(cobbaug$mm.temp.top5m)
+
+#sens slope = .055
+# 0.55 deg C warming per decade
+ss
+ss[1] # sens slope *
+ss[2] # z stat
+ss[3] # p value *
+ss[4] # null value...
+ss[5] # alternative...
+ss[6] # data...
+ss[7] # method....
+ss[8] # n
+ss[9] # conf level
+
+mk
+mk[1] #tau
+mk[2] #2 sided p value
+
+
+#what about yearly values?
+
+anna.yr = yrpro %>% filter(lake=='annabessacook', station==1) 
+ggplot(anna.yr, aes(x=year,y=yr.temp.top5m)) + geom_point()
+mk = Kendall::MannKendall(anna.yr$yr.temp.top5m)
+ss = trend::sens.slope(anna.yr$yr.temp.top5m)
+mk[1]
+mk[2]
+ss[1]
+ss[3]
 
 
 
 
+#* year #########
+#mann kendall and sens slope for each lake in summary table. 
+
+yrprosub = yrpro %>% 
+  filter(station==1) %>% 
+  drop_na(yr.temp.top5m)
+
+ytrends = ddply(yrprosub, .(lake), summarize, 
+                n.years = length(unique(year)),
+                n.pro = sum(n.profiles),
+                temp.5m.mean = mean(yr.temp.top5m),
+                temp.5m.sd = sd(yr.temp.top5m),
+                temp.5m.min = min(yr.temp.top5m),
+                temp.5m.max = max(yr.temp.top5m),
+                mk.tau = NA,
+                mk.p = NA,
+                sens.slope = NA,
+                sens.p = NA)
+                
+lakes = unique(ytrends$lake)                
+for (i in 1:length(lakes)){ #for every lake
+  td = yrprosub[yrprosub$lake == lakes[i], ] 
+  mk = Kendall::MannKendall(td$yr.temp.top5m) #run mk fxn
+  ss = trend::sens.slope(td$yr.temp.top5m) #run sens slope fxn
+  ytrends[i,8] = mk[1]  #mk tau
+  ytrends[i,9] = mk[2]  #mk p
+  ytrends[i,10] =  ss[1]  #sens slope
+  ytrends[i,11] =  ss[3]  #sens p
+}
+  
+mean(ytrends$sens.slope) * 10
+# CWD lakes are warming by 0.3 degrees C per decade !!!
+
+
+#* month #########
+# to do:
+
+#ID of lake-month-year
+prosub = pro %>% filter(station==1)
+
+#add new category for earlysep and late sep
+
+prosub = prosub %>% 
+  mutate(Sep = ifelse((dm >= '09-01' & dm <= '09-14'),'earlySep',
+                      ifelse((dm >= '09-15' & dm <= '09-30'), 'lateSep',NA)))
+  
+prosub$lake.ym = paste(prosub$lake, prosub$ym, sep='_')
+
+#averages together temp values by month
+monthpro = ddply(prosub, 
+                 .(midas, lake, lake.ym, year, month, mm),
+                 summarize, 
+                 #n profiles
+                 n.profiles = length(unique(sampID)),
+                 #temp
+                 mm.temp.top5m = mean(temp.top5m, na.rm=T))
+
+#4085 unique lake-year-month. ~30 * ~6 * ~6 = >5000 makes sense
+
+
+#check
+ggplot(cobbaug, aes(x=year,y=mm.temp.top5m)) + geom_point()
+ggplot(filter(monthpro, lake=='cobbossee' & month==8),
+       aes(x=year,y=mm.temp.top5m)) + geom_point()
+#gained one point somehow.........
+
+#check some more
+unique(monthpro$lake.m)
+length(unique(monthpro$lake.m))
+temp = plyr::count(monthpro$lake.ym)
+
+
+#summarize each month
+monthpro$lake.m = paste(monthpro$lake, monthpro$mm, sep='_')
+
+#long term averages for each month for each lake. 
+monthtrends = ddply(monthpro, 
+                    .(midas, lake, lake.m, month, mm),
+                    summarize, 
+                    n.pro = sum(n.profiles),
+                    n.year = length(unique(year)),
+                    temp.5m.mean = mean(mm.temp.top5m),
+                    temp.5m.sd = sd(mm.temp.top5m),
+                    temp.5m.min = min(mm.temp.top5m),
+                    temp.5m.max = max(mm.temp.top5m),
+                    mk.tau = NA,
+                    mk.p = NA,
+                    sens.slope = NA,
+                    sens.p = NA)
+
+#for each lake-month....
+lake.m = unique(monthpro$lake.m)   
 
 
 
+##########################################
+# needs work !!!
+
+
+
+
+for (i in 1:length(lake.m)){ #for every lake
+  td = monthpro[monthpro$lake.m == lake.m[i], ] 
+  # if n >2 run stats, # if n = 1 or 2, return NA
+  ifelse(length(td$mm.temp.top5m) > 2, 
+         { 
+           mk = Kendall::MannKendall(td$mm.temp.top5m) #run mk fxn
+           ss = trend::sens.slope(td$mm.temp.top5m) #run sens slope fxn
+           monthtrends[i,12] = mk[1]  #mk tau
+           monthtrends[i,13] = mk[2]  #mk p
+           monthtrends[i,14] =  ss[1]  #sens slope
+           monthtrends[i,15] =  ss[3] 
+         }, 
+         {
+           monthtrends[i,12] = NA
+           monthtrends[i,13] = NA
+           monthtrends[i,14] = NA
+           monthtrends[i,15] = NA}
+  )
+}
 
 
 

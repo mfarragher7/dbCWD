@@ -61,31 +61,6 @@ temp1 = plyr::count(pptpr$dep.new)
 #just station 1 for now....
 pptps1 = pptpr %>% filter(station==1)
 
-
-#trying this a different way
-pptest = pptps1
-
-core.grab = ddply(pptps1, .(sampID), summarize, core.grab=NA)
-
-sampID = unique(pptest$sampID)
-
-for (i in 1:length(sampID)){ #for every unique sample,
-  td = pptest[pptest$sampID == sampID[i], ] #subset each sampID
-  ifelse((grepl('c',td$type) & grepl('g',td$type)), 
-         (core.grab[i,2] = 'b'),
-         ifelse((grepl('c',td$type) & !grepl('g',td$type)), 
-                (core.grab[i,2] = 'c'),  #paste c
-                ifelse((!grepl('c',td$type) & grepl('g',td$type)), 
-                       (core.grab[i,2] = 'g'), #paste g
-                       NA)))
-}
-                       
-
-
-
-
-
-
 #roundabout way of getting IDs from profiles with 'core AND grab'
 core.grab = ddply(pptps1, .(sampID), summarize, core.grab=NA)
 #save ID
@@ -104,6 +79,24 @@ for (i in 1:length(sampID)){ #for every unique sample,
 
 #merge new col back into tp df
 pptpcg = merge(pptps1, core.grab, by='sampID')
+
+
+
+
+#trying this a different way
+#pptest = pptps1
+##core.grab = ddply(pptps1, .(sampID), summarize, core.grab=NA)
+#sampID = unique(pptest$sampID)
+#for (i in 1:length(sampID)){ #for every unique sample,
+#  td = pptest[pptest$sampID == sampID[i], ] #subset each sampID
+#  ifelse((grepl('c',td$type) & grepl('g',td$type)), 
+#         (core.grab[i,2] = 'b'),
+#         ifelse((grepl('c',td$type) & !grepl('g',td$type)), 
+#                (core.grab[i,2] = 'c'),  #paste c
+#                ifelse((!grepl('c',td$type) & grepl('g',td$type)), 
+#                       (core.grab[i,2] = 'g'), #paste g
+#                       NA)))}
+
 
 
 
@@ -335,6 +328,13 @@ cg.int = cg.int %>% rename(depth = int.depth)
   
 #end 1/3rd of work, when there's cores & grabs in one profile
 
+#three dates with missing 'type' because core equal or deepr than grab.
+#not an issue for later as long as 9m depths are dropped. which they are!
+
+
+
+
+
 
 
 
@@ -360,7 +360,7 @@ prosum = ddply(gpro, .(sampID, date), summarize,
                tp.sd = sd(tp))
 
 
-# one single bottom grab 2011-09-14 with no core. checks out. what other data is missing....
+# one single bottom grab 2011-09-14 with no core. removing later. what other data is missing....
 
 #save sampID
 sampID = unique(gpro$sampID)
@@ -674,14 +674,15 @@ tp.sub %>% filter(year==2021)
 #wendy avg = 23.64
 tp.sub %>% filter(year==2009)
 #missing 2009-07-10, TP = 25.19
+#just a core sample, decided not to add back into db
 # values from wendy for 7 dates in 2009
-16.8
-24.22
-25.19 #   * missing from my db
-23.32
-27.00
-27.82
-21.77
+#5/22/2009	16.8
+#6/25/2009	24.22
+#7/10/2009	25.19 *the missing data from me
+#7/23/2009	23.32
+#8/18/2009	27.00
+#9/15/2009	27.82
+#10/8/2009	21.77
 #within 0.2 for all calculations
 
 #2008 
@@ -726,10 +727,17 @@ tp.sub %>% filter(year==2006)
 #within 0.1 for all calculations
 
 #2005
-#year average = 21.09382 
-#wendy avg = 
+#year average = 27.39328 
+#wendy avg = 27.42
 tp.sub %>% filter(year==2005)
-#only 2 samples, both in July
+#6/1/2005		21.09
+#7/7/2005		22.74
+#7/25/2005		19.45
+#8/25/2005		37.85
+#9/22/2005		23.65
+#10/21/2005		39.76
+#.2 off in sep,  all others exact
+
 
 #2004
 #year average = 21.36093 

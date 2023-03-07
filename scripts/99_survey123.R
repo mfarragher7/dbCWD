@@ -16,7 +16,11 @@ library(ggplot2)
 #format names
 #save parameters
 
+
+#last export from survey123 - March 3rd 2023
 xlfile = "S123_2023-03-03.xlsx"
+
+
 
 sites = read_xlsx("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/survey123output/S123_2023-03-03.xlsx", sheet = "Form_1_0",
                   col_types = c("numeric",   # ObjectID
@@ -113,19 +117,19 @@ sites$date = date(sites$date)
 str(sites)
 
 #split
-secchi = read_xlsx(paste0("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/survey123data/",xlfile), sheet = "SECCHI_DATA_1")
-dotemp = read_xlsx(paste0("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/survey123data/",xlfile), sheet = "DOTEMP_2")
-qc = read_xlsx(paste0("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/survey123data/",xlfile), sheet = "QC_3")
-tp_grabs = read_xlsx(paste0("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/survey123data/",xlfile), sheet = "Tpgrab_4")
-cyanos = read_xlsx(paste0("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/survey123data/",xlfile), sheet = "Cyano_5") 
-chem = read_xlsx(paste0("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/survey123data/",xlfile), sheet = "CHEMISTRY_6")
+secchi = read_xlsx(paste0("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/survey123output/",xlfile), sheet = "SECCHI_DATA_1")
+dotemp = read_xlsx(paste0("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/survey123output/",xlfile), sheet = "DOTEMP_2")
+qc = read_xlsx(paste0("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/survey123output/",xlfile), sheet = "QC_3")
+tp_grabs = read_xlsx(paste0("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/survey123output/",xlfile), sheet = "Tpgrab_4")
+cyanos = read_xlsx(paste0("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/survey123output/",xlfile), sheet = "Cyano_5") 
+chem = read_xlsx(paste0("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/survey123output/",xlfile), sheet = "CHEMISTRY_6")
 
 
 
 #Build dfs #######
 #format data tables following DEP
 
-#* GENERAL ##############
+#* General ##############
 
 #load lake metadata
 lakeinv = read.csv('C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/db.raw/lakemd.csv',header=T)
@@ -205,7 +209,7 @@ write.csv(General,
 
 
 
-### DO / TEMP ###########
+#* DO / TEMP ###########
 #DO and temperature df
 
 DO_names =c("LAKNAM","MIDAS","STATION","SAMPDATE","AGENCY","PROJECT",
@@ -323,7 +327,7 @@ Cyanos$Phc = NA
 
 #save
 write.csv(Cyanos, 
-          file = paste("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/db.raw/db.cwd/survey123/CWD_2022_Cyanos.csv" ,
+          file = paste("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/db.raw/db.cwd/survey123/CWD_2022_Cyanos.csv",
                        sep = ""), 
           row.names = FALSE)
 
@@ -338,26 +342,32 @@ names(sites)
 Chem = left_join(sites[,c("GlobalID","MIDAS", "station_number", "date", 
                          "core_depth")],
                 lakeinv[,c("MIDAS","LAKE")], by = "MIDAS") %>% 
-  left_join(. ,chemistry[,3:28],by =c("GlobalID" = "ParentGlobalID")) %>% 
-  select("LAKE", "MIDAS", "Station Number", "Date", 5:30) %>% 
-  rename(STATION = 3,
-         pH_Meth = Method...7,
-         pH_Lab = Lab...8,
-         Color_Meth = Method...11,
-         Color_Lab = Lab...12,
-         Cond_Meth = Method...14,
-         Cond_Lab = Lab...15,
-         Alk_Meth = Method...18,
-         Alk_Lab = Lab...19,
-         TP_Rep = "Rep #...23",
-         TP_Lab = Lab...24,
-         CHL_Rep = "Rep #...26") %>% 
-  arrange(MIDAS,STATION,Date)
+  left_join(. ,chem[,3:28],by =c("GlobalID" = "ParentGlobalID")) 
+
+
+Chem = Chem %>% select('LAKE', 'MIDAS', 'station_number', 'date', 5:31) 
+
+chem_names = c("LAKNAM","MIDAS","STATION","SAMPDATE",
+               'Core_depth', 'Sample_depth', 'Units', 'Type',
+               'pH', 'pH_Meth', 'pH_Lab', 
+               'Color', 'A_T', 'Color_Meth', 'Color_Lab',
+               'Cond', 'Cond_Meth', 'Cond_Lab', 'Notes',
+               'Alkalinity', 'Alk_Meth', 'Alk_Lab', 
+               'Labwork_by', 'TP_Label', 'TP_ppb', 'TP_Rep', 'TP_Lab', 
+               'CHL_ppb', 'CHL_Rep', 'CHL_Lab')
+
+Chem2 = Chem 
+
+colnames(Chem) = chem_names
 
 #save
 write.csv(Chem, 
-          file =paste("C:/R/LakeData123/FormattedData/Chem_" , Sys.Date(),".csv", sep = ""), row.names = FALSE)
+          file =paste("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/db.raw/db.cwd/survey123/CWD_2022_Chem.csv", 
+                      sep = ""), 
+          row.names = FALSE)
 
+
+#end
 
 
 

@@ -2,6 +2,15 @@
 # general, secchi, personnel, etc
 #created 2023-03-08
 
+#contains: 
+#  DEP data 1970s through 2018
+#  CWD data 2019-20, plus additional pre-2019 data
+#  CWD data from 2021
+#  2022 and onward coming next
+
+#cleaned data stored here: library/survey.1974-2021.csv 
+
+
 #libraries
 library(plyr)
 library(dplyr)
@@ -10,6 +19,7 @@ library(stringr)
 library(lubridate)
 library(ggplot2)
 library(rLakeAnalyzer)
+
 
 
 #DEP ####
@@ -72,7 +82,7 @@ unique(depsurv$project)
 depsurv = depsurv %>% 
   mutate(sampID=paste(midas, station, date, agency, sep="_")) %>% 
   mutate(surveyors = paste(surveyor1,surveyor2,surveyor3,surveyor4, sep=',')) %>% 
-  select(-surveyor1,-surveyor2,-surveyor3,-surveyor4,midascheck,-project) %>% 
+  select(-surveyor1,-surveyor2,-surveyor3,-surveyor4,-midascheck,-project) %>% 
   mutate(lat=NA) %>% 
   mutate(long=NA) %>% 
   mutate(db='dep')
@@ -148,7 +158,10 @@ cwdsurv = cwdsurv %>%
   rename(seccbot=bottom) %>% 
   rename(secchi=depth) %>% 
   rename(qa_cert=qacert)%>% 
-  rename(surveyors=surveyor)
+  rename(surveyors=surveyor) %>% 
+  select(-midascheck) %>% 
+  mutate(db='cwd98-20')
+  
 
 
 
@@ -159,13 +172,11 @@ names(depsurv)
 #subset 98-18. will be pulling out unique profiles (CWD only) from sampIDs to add to 'complete' db
 cwd98to18 = cwdsurv %>% 
   filter(date > '1998-01-01' & date < '2018-12-31') %>% 
-  mutate(db='cwd') %>% 
   mutate(secID = paste(midas, station, date, sep='_')) 
 
 #subset same timeframe. wont be using this subsetted db in 'complete' db 
 dep98to18 = depsurv %>% 
   filter(date > '1998-01-01' & date < '2018-12-31') %>% 
-  mutate(db='dep') %>% 
   mutate(secID = paste(midas, station, date, sep='_'))
 
 
@@ -197,8 +208,7 @@ cwdpre2019unique = cwd98to18[cwd98to18$secID %in% cwdonly, ]
 
 #subset cwd 2019/20
 cwd1920 = cwdsurv %>% 
-  filter(date > '2019-01-01' & date < '2020-12-31') %>% 
-  mutate(db='cwd19-20')
+  filter(date > '2019-01-01' & date < '2020-12-31')
 
 #merge dfs together so far....
 names(depsurv)
@@ -212,109 +222,156 @@ names(surveythru2020)
 
 
 
-#* CWD 21 ########
+#CWD 21 ########
 
+cwd21 = read.csv("https://raw.githubusercontent.com/mfarragher7/dbCWD/main/db.raw/db.cwd/cwd.secchi.2021.csv",header=T)
 
+#lowercase and rename cols
+cwd21 = cwd21 %>% 
+  set_names(~ str_to_lower(.)) %>% 
+  mutate_all(~ str_to_lower(.)) %>% 
+  dplyr::rename(station=basin) %>% 
+  dplyr::rename(date=sampdate) %>% 
+  mutate(date = as.Date(date, format='%m/%d/%Y'))
+length(unique(cwd21$date)) #number of unique sample dates
 
+#rename lakes
+unique(cwd21$lake)
+#check midas first
+cwd21 = cwd21 %>% mutate(midascheck = paste(midas,lake))
+unique(cwd21$midascheck)
+#save
+temp1 = plyr::count(cwd21$lake)
+temp = plyr::count(cwd21$midascheck)
+cwd21 = cwd21 %>% 
+  mutate(lake = replace(lake, midas==9961, 'annabessacook')) %>% 
+  mutate(lake = replace(lake, midas==3828, 'berry')) %>% 
+  mutate(lake = replace(lake, midas==5242, 'buker')) %>% 
+  mutate(lake = replace(lake, midas==5310, 'carlton')) %>% 
+  mutate(lake = replace(lake, midas==5236, 'cobbossee')) %>% 
+  mutate(lake = replace(lake, midas==8065, 'little cobbossee')) %>% 
+  mutate(lake = replace(lake, midas==3814, 'cochnewagon')) %>% 
+  mutate(lake = replace(lake, midas==5265, 'desert')) %>%
+  mutate(lake = replace(lake, midas==3830, 'dexter')) %>% 
+  mutate(lake = replace(lake, midas==5252, 'horseshoe')) %>% 
+  mutate(lake = replace(lake, midas==5304, 'hutchinson')) %>% 
+  mutate(lake = replace(lake, midas==5302, 'jamies')) %>% 
+  mutate(lake = replace(lake, midas==5244, 'jimmy')) %>% 
+  mutate(lake = replace(lake, midas==5316, 'kezar')) %>% 
+  mutate(lake = replace(lake, midas==5246, 'loon')) %>% 
+  mutate(lake = replace(lake, midas==5312, 'maranacook')) %>% 
+  mutate(lake = replace(lake, midas==98,'narrows upper')) %>% 
+  mutate(lake = replace(lake, midas==103,'narrows lower')) %>% 
+  mutate(lake = replace(lake, midas==5254,'pleasant')) %>% 
+  mutate(lake = replace(lake, midas==5250,'little purgatory')) %>% 
+  mutate(lake = replace(lake, midas==5238,'sand')) %>% 
+  mutate(lake = replace(lake, midas==5300,'shed')) %>% 
+  mutate(lake = replace(lake, midas==5307,'torsey')) %>% 
+  mutate(lake = replace(lake, midas==3832,'wilson')) %>% 
+  mutate(lake = replace(lake, midas==5240,'woodbury'))
+temp2 = plyr::count(cwd21$lake)
+#check for same number. yup
+sum(temp1$freq)
+sum(temp2$freq)
 
+#check stuff
+unique(cwd21$station)
+unique(cwd21$agency)
+names(cwd21)
 
+#fix columns
+cwd21 = cwd21 %>% 
+  mutate(sampID=paste(midas, station, date, agency, sep="_")) %>% 
+  mutate(time=NA) %>% 
+  mutate(comments=NA) %>% 
+  rename(scope=scopetype) %>% 
+  rename(seccbot=bottom) %>% 
+  rename(secchi=depth) %>% 
+  rename(qa_cert=qacert)%>% 
+  mutate(surveyors = paste(surveyor1,surveyor2,surveyor3,surveyor4, sep=',')) %>% 
+  select(-surveyor1,-surveyor2,-surveyor3,-surveyor4,-midascheck,-project) %>% 
+  mutate(db='cwd21')
+  
 
+names(cwd21)
+names(surveythru2020)
 
+survey.full = rbind(cwd21,surveythru2020)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+survey.full = survey.full %>% 
+  select(sampID, midas, lake, station, 
+         date, time, agency, db, 
+         secchi, rep, seccbot, scope, 
+         surveyors, qa_cert, 
+         windvel, winddir, cloudcvr, 
+         lat, long, gloeo, comments)
 
 
 
 
 #* QC ######
-names(depsurv)
+names(survey.full)
 
 #wind velocity
-str(depsurv$windvel)
-temp1 = plyr::count(depsurv$windvel)
+str(survey.full$windvel)
+temp1 = plyr::count(survey.full$windvel)
 #change to numeric and compare
-depsurv$windvel = as.numeric(depsurv$windvel)
-temp2 = plyr::count(depsurv$windvel)
-summary(depsurv$windvel)
+survey.full$windvel = as.numeric(survey.full$windvel)
+temp2 = plyr::count(survey.full$windvel)
+survey.full = survey.full %>% filter(windvel <50) #remove 99s
+summary(survey.full$windvel)
 
-#wind direction. look up codes...
-str(depsurv$winddir)
-temp1 = plyr::count(depsurv$winddir)
+#wind direction.
+str(survey.full$winddir)
+temp1 = plyr::count(survey.full$winddir)
 #change to numeric and compare
-depsurv$winddir = as.numeric(depsurv$winddir)
-temp2 = plyr::count(depsurv$winddir)
-summary(depsurv$winddir)
+survey.full$winddir = as.numeric(survey.full$winddir)
+temp2 = plyr::count(survey.full$winddir)
+summary(survey.full$winddir)
 
 #clouds
-str(depsurv$cloudcvr)
-temp1 = plyr::count(depsurv$cloudcvr)
-unique(depsurv$cloudcvr)
+str(survey.full$cloudcvr)
+temp1 = plyr::count(survey.full$cloudcvr)
+unique(survey.full$cloudcvr)
 #NA where blank
-depsurv = depsurv %>% mutate(cloudcvr = na_if(cloudcvr,''))
+survey.full = survey.full %>% mutate(cloudcvr = na_if(cloudcvr,''))
+#numeric and character... hmm
 
 #secchi
-str(depsurv$secchi)
-length(depsurv$secchi)
-temp1 = plyr::count(depsurv$secchi)
-depsurv$secchi = as.numeric(depsurv$secchi)
-summary(depsurv$secchi)
+str(survey.full$secchi)
+length(survey.full$secchi)
+temp1 = plyr::count(survey.full$secchi)
+survey.full$secchi = as.numeric(survey.full$secchi)
+summary(survey.full$secchi)
 
 #secchi bottom
-str(depsurv$seccbot)
-unique(depsurv$seccbot)
-temp1 = plyr::count(depsurv$seccbot)
+str(survey.full$seccbot)
+unique(survey.full$seccbot)
+temp1 = plyr::count(survey.full$seccbot)
 #NA where blank
-depsurv = depsurv %>% mutate(seccbot = na_if(seccbot,''))
+survey.full = survey.full %>% mutate(seccbot = na_if(seccbot,''))
 #change 'b' to 'y'
-depsurv = depsurv %>% mutate(seccbot = replace(seccbot, seccbot=='b', 'y'))
-temp2 = plyr::count(depsurv$seccbot)
+survey.full = survey.full %>% mutate(seccbot = replace(seccbot, seccbot=='b', 'y'))
+temp2 = plyr::count(survey.full$seccbot)
 #scope
-str(depsurv$scope)
-unique(depsurv$scope)
+str(survey.full$scope)
+unique(survey.full$scope)
 #seems fine!
 #rep
-str(depsurv$rep)
-unique(depsurv$rep)
+str(survey.full$rep)
+unique(survey.full$rep)
 #qacert
-str(depsurv$qa_cert)
-unique(depsurv$qa_cert)
-depsurv = depsurv %>% mutate(qa_cert = na_if(qa_cert,''))
+str(survey.full$qa_cert)
+unique(survey.full$qa_cert)
+survey.full = survey.full %>% mutate(qa_cert = na_if(qa_cert,''))
 #gloeo?
-str(depsurv$gloeo)
-unique(depsurv$gloeo)
+str(survey.full$gloeo)
+unique(survey.full$gloeo)
 #comments
-unique(depsurv$comments)
+unique(survey.full$comments)
 #check for issues and mark resolved
-depsurv = depsurv %>% select(-midascheck)
+
 
 #save in library
-write.csv(depsurv, "C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/library/survey.dep.csv", row.names = F)
+write.csv(survey.full, "C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/library/survey.1974-2021.csv", row.names = F)
 

@@ -112,6 +112,8 @@ deppro$month = lubridate::month(deppro$date)
 #* cwd 1998-2020 #######
 
 #load cwd data and subset 2019 2020
+#also get profiles 1998-2018 that are missing from DEP db
+
 cwdpro = read.csv('https://raw.githubusercontent.com/mfarragher7/dbCWD/main/db.raw/db.cwd/cwd.profiles.98-2020.csv',header=T)
 
 #lowercase everything and rename cols
@@ -465,6 +467,48 @@ write.csv(spro, "C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/library/profiles.197
 
 
 #end of that
+
+
+
+
+#look at # of profiles for each lake, and #profiles of each month for those too. 
+#trying to see if I can determine onset of stratification and if that changes in a meaningful way
+
+#overall # dates
+date.check = ddply(profiles, .(lake, station), summarize, 
+                   n.profiles = length(unique(date)))
+#lake-year
+date.check.year = ddply(profiles, .(lake, station, year), summarize, 
+                   n.profiles = length(unique(date)))
+
+#lake year and month
+date.check.ym = ddply(profiles, .(lake, station, year, month), summarize, 
+                      n.profiles = length(unique(date)))
+
+
+#for thermal stratification onset timing question, 
+#need at least 2 dates per month (per lake and station) from may-oct, or more
+
+#could be done!
+
+#how to pull out those sampIDs ??
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

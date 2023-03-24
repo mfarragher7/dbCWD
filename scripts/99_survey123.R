@@ -17,12 +17,12 @@ library(ggplot2)
 #save parameters
 
 
-#last export from survey123 - March 3rd 2023
-xlfile = "S123_2023-03-03.xlsx"
+#last export from survey123 - March 24 2023
+xlfile = "S123_2023-03-24.xlsx"
 
 
 
-sites = read_xlsx("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/survey123output/S123_2023-03-03.xlsx", sheet = "Form_1_0",
+sites = read_xlsx("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/survey123output/S123_2023-03-24.xlsx", sheet = "Form_1_0",
                   col_types = c("numeric",   # ObjectID
                                 "text",      # GlobalID
                                 "numeric",   # MIDAS
@@ -55,7 +55,7 @@ sites = read_xlsx("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/survey123output/S1
                                 "text",      # Phytoplankton collected
                                 "numeric",   # Number of cores
                                 "numeric",   # Depth of cores
-                                "text",      # Notes
+                                "text",      # phyto Notes
                                 "skip",      # Sediments collected
                                 "skip",      # Number of Cores
                                 "skip",      # Odor?	
@@ -356,7 +356,6 @@ chem_names = c("LAKNAM","MIDAS","STATION","SAMPDATE",
                'Labwork_by', 'TP_Label', 'TP_ppb', 'TP_Rep', 'TP_Lab', 
                'CHL_ppb', 'CHL_Rep', 'CHL_Lab')
 
-Chem2 = Chem 
 
 colnames(Chem) = chem_names
 

@@ -238,7 +238,7 @@ ggplot(filter(mmpro, lake=='annabessacook' &
 #one point per year (june july and august, thru sep 14)
 summerpro = pro %>% 
   filter(dm >= '06-01' & dm <= '09-15')
-temp = plyr::count(summerpro$year)
+temp = plyr::count(summerpro$year) 
 sum(temp$freq)
 length(summerpro$sampID)
 #stations as factors
@@ -692,6 +692,144 @@ for (i in 1:length(lake.m)){ #for every lake
            monthtrends[i,15] = NA}
   )
 }
+
+
+
+
+
+
+
+########################
+
+#LSM #######
+#making figures and stats tables for LSM conference
+
+#*year ######
+
+#use yrprosub, it's just station1s and na.rm for temp.top5m
+yrprosub = yrprosub %>% 
+drop_na(yr.temp.epi)
+
+unique(yrprosub$lake)
+names(yrprosub)
+
+#epi
+ggplot(yrprosub,
+       aes(x=year, 
+           y=yr.temp.epi, 
+           color=lake)) +
+  geom_point(shape=19,
+             alpha=0.75) +
+  geom_line(stat="smooth",
+            method='loess',
+            size = 0.75,
+            linetype ="solid",
+            alpha = 0.25,
+            show.legend = F)  +
+  scale_x_continuous(limits=c(1975,2022)) +
+  scale_y_continuous(limits=c(10,30),
+                     n.breaks = 6) +
+  #scale_color_manual(values=c('blue','green')) +
+  labs(title='Epi Summer mean temperature (June to 14-Sep)',
+       x="Date",
+       y="Temp C",
+       color='Lake')
+
+#top 5m
+ggplot(yrprosub,
+       aes(x=year, 
+           y=yr.temp.top5m, 
+           color=lake)) +
+  geom_point(shape=19,
+             alpha=0.75) +
+  geom_line(stat="smooth",
+            method='loess',
+            size = 0.75,
+            linetype ="solid",
+            alpha = 0.25,
+            show.legend = F)  +
+  scale_x_continuous(limits=c(1975,2022)) +
+  scale_y_continuous(limits=c(16,26),
+                     n.breaks = 6) +
+  #scale_color_manual(values=c('blue','green')) +
+  labs(title='Summer mean surface temperature (June to 14-Sep)',
+       x="Date",
+       y="Temp C",
+       color='Lake')
+
+
+
+
+#look at monthly avg
+monthprosub = monthpro %>% 
+  filter(mm=='May'|
+           mm=='Jun'|
+           mm=='Jul'|
+           mm=='Aug'|
+           mm=='Sep'|
+           mm=='Oct') %>% 
+  drop_na(mm.temp.top5m)
+
+
+#top 5m
+ggplot(monthprosub,
+       aes(x=year, 
+           y=mm.temp.top5m, 
+           color=lake)) +
+  geom_point(shape=19,
+             alpha=0.75) +
+  geom_line(stat="smooth",
+            method='loess',
+            size = 0.75,
+            linetype ="solid",
+            alpha = 0.25,
+            show.legend = F)  +
+  facet_wrap(~mm, 
+             ncol=3, nrow=2, scale='free_y') +
+  scale_x_continuous(limits=c(1975,2022)) +
+  #scale_y_continuous(limits=c(16,26), n.breaks = 6) +
+  #scale_color_manual(values=c('blue','green')) +
+  labs(title='Monthly mean surface (top 5m) temperature',
+       x="Date",
+       y="Temp C",
+       color='Lake') +
+  theme_bw() + 
+  
+  
+  
+  
+  theme(title=element_text(size=10),
+        strip.background=element_rect(fill='gray90'))
+
+
+
+
+
+#thermocline 
+
+#top 5m
+ggplot(yrprosub,
+       aes(x=year, 
+           y=yr.thermo.depth, 
+           color=lake)) +
+  geom_point(shape=19,
+             alpha=0.75) +
+  geom_line(stat="smooth",
+            method='loess',
+            size = 0.75,
+            linetype ="solid",
+            alpha = 0.25,
+            show.legend = F)  +
+  scale_x_continuous(limits=c(1975,2022)) +
+  #scale_y_continuous(limits=c(16,26),
+  #scale_color_manual(values=c('blue','green')) +
+  labs(title='Summer mean surface temperature (June to 14-Sep)',
+       x="Date",
+       y="Temp C",
+       color='Lake')
+
+
+
 
 
 

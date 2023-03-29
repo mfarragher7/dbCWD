@@ -249,8 +249,13 @@ profiles.thru2020 = rbind(profiles.thru2020, cwdpro1920)
 names(profiles.thru2020)
 
 
-#* cwd 2021 #######
+
+
+#* cwd 2021-22 #######
 cwdpro21 = read.csv('https://raw.githubusercontent.com/mfarragher7/dbCWD/main/db.raw/db.cwd/cwd.profiles.2021.csv',header=T)
+cwdpro22 = read.csv('https://raw.githubusercontent.com/mfarragher7/dbCWD/main/db.raw/db.cwd/survey123/CWD_2022_DO_TEMP_PROFILES.csv',header=T)
+names(cwdpro21)
+names(cwdpro22)
 
 #lowercase everything and rename cols
 cwdpro21 = cwdpro21 %>% 
@@ -259,22 +264,35 @@ cwdpro21 = cwdpro21 %>%
   dplyr::rename(station=basin) %>% 
   dplyr::rename(date=sampdate)
 
-#format date
 cwdpro21$date = as.Date(cwdpro21$date, format='%m/%d/%Y')
 
-#rename lakes
-unique(cwdpro21$lake)
-#check midas first
-cwdpro21 = cwdpro21 %>% mutate(midascheck = paste(midas,lake))
-unique(cwdpro21$midascheck)
-#save
-plyr::count(cwdpro21$lake)
-plyr::count(cwdpro21$midascheck)
 
-temp1 = plyr::count(cwdpro21$lake)
+cwdpro22 = cwdpro22 %>% 
+  set_names(~ str_to_lower(.)) %>% 
+  mutate_all(~ str_to_lower(.))%>% 
+  dplyr::rename(lake=laknam) %>% 
+  dplyr::rename(date=sampdate)
+
+#combine 2021 and 2022
+cpro2122 = rbind(cwdpro21, cwdpro22)
+
+
+#format date
+cpro2122$date = as.Date(cpro2122$date)
+
+#rename lakes
+unique(cpro2122$lake)
+#check midas first
+cpro2122 = cpro2122 %>% mutate(midascheck = paste(midas,lake))
+unique(cpro2122$midascheck)
+#save
+plyr::count(cpro2122$lake)
+plyr::count(cpro2122$midascheck)
+
+temp1 = plyr::count(cpro2122$lake)
 
 #rename
-cwdpro21 = cwdpro21 %>% 
+cpro2122 = cpro2122 %>% 
   mutate(lake = replace(lake, midas==9961,'annabessacook')) %>% 
   mutate(lake = replace(lake, midas==3828,'berry')) %>% 
   mutate(lake = replace(lake, midas==5242,'buker')) %>% 
@@ -301,26 +319,26 @@ cwdpro21 = cwdpro21 %>%
   mutate(lake = replace(lake, midas==3832,'wilson')) %>% 
   mutate(lake = replace(lake, midas==5240,'woodbury'))
 
-temp2 = plyr::count(cwdpro21$lake)
+temp2 = plyr::count(cpro2122$lake)
 
 #check for same number of rows. yup
 sum(temp1$freq)
 sum(temp2$freq)
 
 #create sample id
-cwdpro21 = cwdpro21 %>% 
+cpro2122 = cpro2122 %>% 
   mutate(sampID=paste(midas, station, date, agency, sep="_")) %>% 
   mutate(db='cwd') %>% 
   select(-midascheck, -project)
 
 #get year and month
-cwdpro21$year = lubridate::year(cwdpro21$date)
-cwdpro21$month = lubridate::month(cwdpro21$date)
+cpro2122$year = lubridate::year(cpro2122$date)
+cpro2122$month = lubridate::month(cpro2122$date)
 
-names(cwdpro21)
+names(cpro2122)
 
 #COMBINE
-profiles = rbind(profiles.thru2020, cwdpro21)
+profiles = rbind(profiles.thru2020, cpro2122)
 
 
 #* QC ####
@@ -333,16 +351,19 @@ profiles$station = as.numeric(profiles$station)
 unique(profiles$depth)
 profiles$depth = as.numeric(profiles$depth)
 ddd = plyr::count(profiles$depth) #34 profiles at 999
+ddd
 profiles = profiles %>% filter(depth <100)
 #TEMPERATURE
 unique(profiles$temp)
 profiles$temp = as.numeric(profiles$temp)
 ttt = plyr::count(profiles$temp) #13 temps at 99.9
+ttt
 profiles = profiles %>% filter(temp <50)
 #OXYGEN
 unique(profiles$oxygen)
 profiles$oxygen = as.numeric(profiles$oxygen)
 ooo = plyr::count(profiles$oxygen) #8 do at 99.9
+ooo
 profiles = profiles %>% filter(oxygen <50)
 #other
 unique(profiles$oxymeth)
@@ -354,19 +375,51 @@ profiles = profiles %>% mutate(calib = na_if(calib,''))
 profiles$midas = as.numeric(profiles$midas)
 unique(profiles$lake)
 unique(profiles$sampID)
-length(unique(profiles$sampID)) #6308 unique profiles
+length(unique(profiles$sampID)) #6320 unique profiles
 unique(profiles$db)
 str(profiles)
 
 summary(profiles$temp)
 summary(profiles$oxygen)
 
+#remove duplicate profiles
+profiles$dups = paste(profiles$midas,
+                      profiles$station,
+                      profiles$date,
+                      profiles$depth,
+                      profiles$temp,
+                      profiles$oxygen,
+                      sep='_')
+
+dups = plyr::count(profiles$dups)
+dups %>% filter(freq==2)
+#192 duplicate readings mostly from 2022 but not all 
+
+profiles = profiles %>% 
+  distinct(dups)
+
+dups2 = plyr::count(profiles$dups)
+#no more duplicates
+
 
 #save
-write.csv(profiles, "C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/library/profiles.1975-2021.csv", row.names = F)
+write.csv(profiles, "C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/library/profiles.1975-2022.csv", row.names = F)
 
 
  
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #* summary ####

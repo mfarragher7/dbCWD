@@ -372,6 +372,21 @@ unique(survey.full$comments)
 #check for issues and mark resolved
 
 
+
+
+
+
+## REMOVE DUPLICATES!!!!!!!!
+
+################################################
+
+
+
+
+
+
+
+
 #save in library
 write.csv(survey.full, "C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/library/survey.1974-2021.csv", row.names = F)
 

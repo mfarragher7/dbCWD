@@ -17,12 +17,12 @@ library(ggplot2)
 #save parameters
 
 
-#last export from survey123 - March 24 2023
-xlfile = "S123_2023-03-24.xlsx"
+#last export from survey123 - March 29 2023
+xlfile = "S123_2023-03-29.xlsx"
 
 
 
-sites = read_xlsx("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/survey123output/S123_2023-03-24.xlsx", sheet = "Form_1_0",
+sites = read_xlsx("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/survey123output/S123_2023-03-29.xlsx", sheet = "Form_1_0",
                   col_types = c("numeric",   # ObjectID
                                 "text",      # GlobalID
                                 "numeric",   # MIDAS

@@ -23,8 +23,6 @@
 "Annabessacook",9961,1,2022-06-29,"CW",3,"10:30","Becker, Michael",NA,NA,NA,0,0,"B",6.28,"N","4",1,"BE-0780",NA,NA
 "Annabessacook",9961,1,2022-07-10,"CW",3,"00:45","Becker, Michael",NA,NA,NA,2,8,"B",7.6,"N","4",1,"BE-0780",NA,"Water temp on Mike's dock = 78F"
 "Annabessacook",9961,1,2022-07-10,"CW",3,"00:45","Becker, Michael",NA,NA,NA,2,8,"B",7.6,"N","4",1,"BE-0780",NA,"Water temp on Mike's dock = 78F"
-"Annabessacook",9961,1,2022-07-27,"CW",3,"14:10","Farragher, Matt",NA,NA,NA,3,4,NA,6,"N","4",1,"BE-0780",NA,NA
-"Annabessacook",9961,1,2022-07-27,"CW",3,"14:10","Farragher, Matt",NA,NA,NA,3,4,NA,6,"N","4",1,"BE-0780",NA,NA
 "Annabessacook",9961,1,2022-08-05,"CW",3,"15:00","Becker, Michael",NA,NA,NA,0,0,"B",5.2,"N","4",1,"BE-0780",NA,NA
 "Annabessacook",9961,1,2022-08-05,"CW",3,"15:00","Becker, Michael",NA,NA,NA,0,0,"B",NA,"N","4",2,NA,NA,NA
 "Annabessacook",9961,1,2022-08-05,"CW",3,"15:00","Becker, Michael",NA,NA,NA,0,0,"B",5.2,"N","4",1,"BE-0780",NA,NA
@@ -39,8 +37,6 @@
 "Annabessacook",9961,1,2022-09-09,"CW",3,"10:30","Becker, Michael",NA,NA,NA,0,0,"B",2,"N","4",1,"BE-0780",NA,NA
 "Annabessacook",9961,1,2022-09-30,"CW",3,"10:00","Becker, Michael",NA,NA,NA,0,0,"B",2.58,"N","4",1,"BE-0780",NA,NA
 "Annabessacook",9961,1,2022-09-30,"CW",3,"10:00","Becker, Michael",NA,NA,NA,0,0,"B",2.58,"N","4",1,"BE-0780",NA,NA
-"Annabessacook",9961,2,2021-07-26,"CW",3,"14:40","Dennis, Wendy",NA,"Mike Halligan",NA,1,5,"B",5.85,"N","4",1,"DE-0023",NA,"500ml chl filter"
-"Annabessacook",9961,2,2021-07-26,"CW",3,"14:40","Dennis, Wendy",NA,"Mike Halligan",NA,1,5,"B",5.85,"N","4",1,"DE-0023",NA,"500ml chl filter"
 "Annabessacook",9961,2,2022-11-07,"CW",3,"12:10","Dennis, Wendy","Farragher, Matt",NA,NA,2,1,"B",4.61,"N","4",1,"DE-0023",0,"500ml chl filter"
 "Annabessacook",9961,2,2022-11-07,"CW",3,"12:10","Dennis, Wendy","Farragher, Matt",NA,NA,2,1,"B",4.73,"N","4",1,"FA-3141",0,"500ml chl filter"
 "Annabessacook",9961,2,2022-11-07,"CW",3,"12:10","Dennis, Wendy","Farragher, Matt",NA,NA,2,1,"B",4.61,"N","4",1,"DE-0023",0,"500ml chl filter"
@@ -51,10 +47,10 @@
 "Annabessacook",9961,2,2022-06-17,"CW",3,"15:00","Becker, Michael",NA,NA,NA,5,4,"B",5.95,"N","4",1,"BE-0780",NA,NA
 "Annabessacook",9961,2,2022-06-26,"CW",3,"11:40","Becker, Michael",NA,NA,NA,3,5,"B",5.93,"N","4",1,NA,NA,NA
 "Annabessacook",9961,2,2022-06-26,"CW",3,"11:40","Becker, Michael",NA,NA,NA,3,5,"B",5.93,"N","4",1,NA,NA,NA
-"Annabessacook",9961,1,2022-07-27,"CW",3,"14:30","Becker, Michael",NA,NA,NA,3,4,"B",5.85,"N","4",1,"BE-0780",NA,NA
-"Annabessacook",9961,1,2022-07-27,"CW",3,"14:30","Becker, Michael",NA,NA,NA,3,4,"B",6,"N","4",2,"BE-0780",NA,NA
-"Annabessacook",9961,1,2022-07-27,"CW",3,"14:30","Becker, Michael",NA,NA,NA,3,4,"B",5.85,"N","4",1,"BE-0780",NA,NA
-"Annabessacook",9961,1,2022-07-27,"CW",3,"14:30","Becker, Michael",NA,NA,NA,3,4,"B",6,"N","4",2,"BE-0780",NA,NA
+"Annabessacook",9961,1,2022-07-27,"CW",3,"14:10","Becker, Michael",NA,NA,NA,3,4,"B",5.85,"N","4",1,"BE-0780",NA,NA
+"Annabessacook",9961,1,2022-07-27,"CW",3,"14:10","Becker, Michael",NA,NA,NA,3,4,"B",6,"N","4",2,"BE-0780",NA,NA
+"Annabessacook",9961,1,2022-07-27,"CW",3,"14:10","Becker, Michael",NA,NA,NA,3,4,"B",5.85,"N","4",1,"BE-0780",NA,NA
+"Annabessacook",9961,1,2022-07-27,"CW",3,"14:10","Becker, Michael",NA,NA,NA,3,4,"B",6,"N","4",2,"BE-0780",NA,NA
 "Annabessacook",9961,2,2022-08-10,"CW",3,"13:00",NA,NA,NA,NA,2,2,"O",3.05,"N","4",1,"BE-0780",NA,NA
 "Annabessacook",9961,2,2022-08-10,"CW",3,"13:00",NA,NA,NA,NA,2,2,"O",3,"N","4",2,"BE-0780",NA,NA
 "Annabessacook",9961,2,2022-08-10,"CW",3,"13:00",NA,NA,NA,NA,2,2,"O",3.05,"N","4",1,"BE-0780",NA,NA
@@ -65,8 +61,8 @@
 "Annabessacook",9961,1,2022-08-30,"CW",3,"09:30","Becker, Michael",NA,NA,NA,4,5,"B",2.1,"N","4",2,"BE-0780",NA,NA
 "Annabessacook",9961,1,2022-08-30,"CW",3,"09:30","Becker, Michael",NA,NA,NA,4,5,"B",2.12,"N","4",1,"BE-0780",NA,NA
 "Annabessacook",9961,1,2022-08-30,"CW",3,"09:30","Becker, Michael",NA,NA,NA,4,5,"B",2.1,"N","4",2,"BE-0780",NA,NA
-"Annabessacook",9961,1,2022-09-09,"CW",3,"10:45","Becker, Michael",NA,NA,NA,0,0,"B",1.95,"N","4",1,"BE-0780",NA,NA
-"Annabessacook",9961,1,2022-09-09,"CW",3,"10:45","Becker, Michael",NA,NA,NA,0,0,"B",1.95,"N","4",1,"BE-0780",NA,NA
+"Annabessacook",9961,2,2022-09-09,"CW",3,"10:45","Becker, Michael",NA,NA,NA,0,0,"B",1.95,"N","4",1,"BE-0780",NA,NA
+"Annabessacook",9961,2,2022-09-09,"CW",3,"10:45","Becker, Michael",NA,NA,NA,0,0,"B",1.95,"N","4",1,"BE-0780",NA,NA
 "Annabessacook",9961,2,2022-09-30,"CW",3,"10:20","Becker, Michael",NA,NA,NA,0,0,"B",2.78,"N","4",1,"BE-0780",NA,NA
 "Annabessacook",9961,2,2022-09-30,"CW",3,"10:20","Becker, Michael",NA,NA,NA,0,0,"B",2.78,"N","4",1,"BE-0780",NA,NA
 "Berry",3828,1,2022-09-06,"CW",3,"16:15","Dennis, Wendy","Burton, Ryan",NA,NA,3,2,"O",6.34,"N","4",1,"DE-0023",0,"DEP baseline. CWD TP 16:45 -> 17:00; DEP TP grab at 7m and 5m core for chl."
@@ -82,8 +78,8 @@
 "Cobbossee",5236,1,2022-07-15,"CW",3,"10:30","Whalen, Nate",NA,NA,NA,3,8,"B",8.4,"N","4",1,"WH-0481",NA,NA
 "Cobbossee",5236,1,2022-07-17,"CW",3,"12:45","Whalen, Nate",NA,NA,NA,2,5,"B",7.6,"N","4",1,"WH-0481",NA,NA
 "Cobbossee",5236,1,2022-07-17,"CW",3,"12:45","Whalen, Nate",NA,NA,NA,2,5,"B",7.6,"N","4",1,"WH-0481",NA,NA
-"Cobbossee",5236,1,2023-07-27,"CW",3,"14:25","Whalen, Nate",NA,NA,NA,0,0,"B",7.3,"N","4",1,"WH-0481",NA,NA
-"Cobbossee",5236,1,2023-07-27,"CW",3,"14:25","Whalen, Nate",NA,NA,NA,0,0,"B",7.3,"N","4",1,"WH-0481",NA,NA
+"Cobbossee",5236,1,2022-07-27,"CW",3,"14:25","Whalen, Nate",NA,NA,NA,0,0,"B",7.3,"N","4",1,"WH-0481",NA,NA
+"Cobbossee",5236,1,2022-07-27,"CW",3,"14:25","Whalen, Nate",NA,NA,NA,0,0,"B",7.3,"N","4",1,"WH-0481",NA,NA
 "Cobbossee",5236,1,2022-08-01,"CW",3,"00:10","Whalen, Nate",NA,NA,NA,0,0,"B",7,"N","4",1,"WH-0481",NA,NA
 "Cobbossee",5236,1,2022-08-01,"CW",3,"00:10","Whalen, Nate",NA,NA,NA,0,0,"B",7,"N","4",1,"WH-0481",NA,NA
 "Cobbossee",5236,1,2022-08-14,"CW",3,"14:00","Whalen, Nate",NA,NA,NA,2,7,"B",6.3,"N","4",1,"WH-0481",NA,NA
@@ -125,8 +121,8 @@
 "Horseshoe",5252,1,2022-07-04,"CW",3,"13:00","Poulin, Christian",NA,NA,NA,10,8,"B",4.75,"N","4",1,"PO-2037",NA,NA
 "Horseshoe",5252,1,2022-07-18,"CW",3,"12:30","Poulin, Christian",NA,NA,NA,7,5,"C",5.17,"N","4",1,"PO-2037",NA,NA
 "Horseshoe",5252,1,2022-07-31,"CW",3,"13:20","Poulin, Christian",NA,NA,NA,5,6,"B",4.42,"N","4",1,"PO-2037",NA,NA
-"Horseshoe",5252,1,NA,"CW",3,"13:20","Poulin, Christian",NA,NA,NA,2,5,"C",3.42,"N","4",1,"PO-2037",NA,NA
-"Horseshoe",5252,1,NA,"CW",3,"13:20","Poulin, Christian",NA,NA,NA,2,5,"C",3.36,"N","4",2,"PO-2037",NA,NA
+"Horseshoe",5252,1,2022-08-13,"CW",3,"13:20","Poulin, Christian",NA,NA,NA,2,5,"C",3.42,"N","4",1,"PO-2037",NA,NA
+"Horseshoe",5252,1,2022-08-13,"CW",3,"13:20","Poulin, Christian",NA,NA,NA,2,5,"C",3.36,"N","4",2,"PO-2037",NA,NA
 "Horseshoe",5252,1,2022-08-27,"CW",3,"13:30","Poulin, Christian",NA,NA,NA,3,1,NA,4.32,"N","4",1,"PO-2037",NA,NA
 "Horseshoe",5252,1,2022-09-10,"CW",3,"13:40","Poulin, Christian",NA,NA,NA,1,1,"B",4,"N","4",1,"PO-2037",NA,NA
 "Horseshoe",5252,1,2022-09-25,"CW",3,"09:10","Poulin, Christian",NA,NA,NA,0,0,"C",4.34,"N","4",1,"PO-2037",NA,NA
@@ -150,8 +146,8 @@
 "Maranacook",5312,1,2022-08-28,"CW",3,"12:52","Gerstein, Shelly","Mettey, Gale",NA,NA,6,5,"C",7.62,"N","4",1,"GE-2647",NA,NA
 "Maranacook",5312,1,2022-08-28,"CW",3,"12:52","Gerstein, Shelly","Mettey, Gale",NA,NA,6,5,"C",7.65,"N","4",1,"ME-2646",NA,NA
 "Maranacook",5312,1,2022-08-28,"CW",3,"12:52","Gerstein, Shelly","Mettey, Gale",NA,NA,6,5,"C",7.62,"N","4",1,"GE-2647",NA,NA
-"Maranacook",5312,2,2023-03-22,"CW",3,"09:30","Dodge, Edward",NA,NA,NA,7,7,"B",5.35,"N","4",1,"DO-0532",NA,NA
-"Maranacook",5312,2,2023-03-22,"CW",3,"09:30","Dodge, Edward",NA,NA,NA,7,7,"B",5.35,"N","4",1,"DO-0532",NA,NA
+"Maranacook",5312,2,2022-05-14,"CW",3,"09:30","Dodge, Edward",NA,NA,NA,7,7,"B",5.35,"N","4",1,"DO-0532",NA,NA
+"Maranacook",5312,2,2022-05-14,"CW",3,"09:30","Dodge, Edward",NA,NA,NA,7,7,"B",5.35,"N","4",1,"DO-0532",NA,NA
 "Maranacook",5312,2,2022-05-29,"CW",3,"08:50","Dodge, Edward",NA,NA,NA,7,3,"B",5.1,NA,"4",1,"DO-0532",NA,NA
 "Maranacook",5312,2,2022-05-29,"CW",3,"08:50","Dodge, Edward",NA,NA,NA,7,3,"B",5.1,NA,"4",1,"DO-0532",NA,NA
 "Maranacook",5312,2,2022-06-06,"CW",3,"13:00","Dodge, Edward",NA,NA,NA,7,3,"B",5.1,"N","4",1,"DO-0532",NA,NA
@@ -259,3 +255,5 @@
 "Pleasant",5254,3,2022-09-10,"CW",3,"10:30","Dennis, Wendy","Fish, Mark",NA,NA,0,0,"B",4.13,"N","4",1,"FI-xxxx",0,NA
 "Upper Pleasant",5254,3,2022-09-10,"CW",3,"10:30","Dennis, Wendy","Fish, Mark",NA,NA,0,0,"B",4.11,"N","4",1,"DE-0023",0,NA
 "Upper Pleasant",5254,3,2022-09-10,"CW",3,"10:30","Dennis, Wendy","Fish, Mark",NA,NA,0,0,"B",4.13,"N","4",1,"FI-xxxx",0,NA
+"Annabessacook",9961,2,2022-07-26,"CW",3,"14:40","Dennis, Wendy",NA,"Mike Halligan",NA,1,5,"B",5.85,"N","4",1,"DE-0023",NA,"500ml chl filter"
+"Annabessacook",9961,2,2022-07-26,"CW",3,"14:40","Dennis, Wendy",NA,"Mike Halligan",NA,1,5,"B",5.85,"N","4",1,"DE-0023",NA,"500ml chl filter"

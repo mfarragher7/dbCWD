@@ -5,15 +5,13 @@
 #contains: 
 #  DEP data 1970s through 2018
 #  CWD data 2019-20, plus additional pre-2019 data
-#  CWD data from 2021
-#  2022 and onward coming next
+#  CWD 2021
+#  CWD 2022 
 
 #cleaned data stored here: library/survey.1974-2021.csv 
 
 
 #libraries
-library(plyr)
-library(dplyr)
 library(tidyverse)
 library(stringr)
 library(lubridate)
@@ -82,7 +80,7 @@ unique(depsurv$project)
 depsurv = depsurv %>% 
   mutate(sampID=paste(midas, station, date, agency, sep="_")) %>% 
   mutate(surveyors = paste(surveyor1,surveyor2,surveyor3,surveyor4, sep=',')) %>% 
-  select(-surveyor1,-surveyor2,-surveyor3,-surveyor4,-midascheck,-project) %>% 
+  select(-surveyor1,-surveyor2,-surveyor3,-surveyor4,-midascheck) %>% 
   mutate(lat=NA) %>% 
   mutate(long=NA) %>% 
   mutate(db='dep')
@@ -148,26 +146,30 @@ cwdsurv = cwdsurv %>%
 #check stuff
 unique(cwdsurv$station)
 unique(cwdsurv$agency)
+
 #fix columns
 cwdsurv = cwdsurv %>% 
-  mutate(agency = replace(agency, grepl('e',agency),'ei')) %>% 
-  mutate(time=NA) %>% 
+  mutate(agency = replace(agency, grepl('e',agency),'ei'))
+cwdsurv = cwdsurv %>% 
+  mutate(time=NA)%>% 
   mutate(comments=NA) %>% 
   mutate(gloeo=NA) %>% 
+  mutate(project=3) %>% 
+  mutate(db='cwd98-20')
+cwdsurv = cwdsurv %>% 
   rename(scope=scopetype) %>% 
   rename(seccbot=bottom) %>% 
   rename(secchi=depth) %>% 
   rename(qa_cert=qacert)%>% 
   rename(surveyors=surveyor) %>% 
-  select(-midascheck) %>% 
-  mutate(db='cwd98-20')
+  select(-midascheck)
   
-
+names(depsurv)
+names(cwdsurv)
 
 
 #* db compare #############
-names(cwdsurv)
-names(depsurv)
+#look for samples from dep that arent in cwd, and vice versa 
 
 #subset 98-18. will be pulling out unique profiles (CWD only) from sampIDs to add to 'complete' db
 cwd98to18 = cwdsurv %>% 
@@ -178,7 +180,6 @@ cwd98to18 = cwdsurv %>%
 dep98to18 = depsurv %>% 
   filter(date > '1998-01-01' & date < '2018-12-31') %>% 
   mutate(secID = paste(midas, station, date, sep='_'))
-
 
 #if I use midas-station-date and leave off agency, I should still get unique samples from each db
 
@@ -203,8 +204,37 @@ checksub = check[check$secID %in% uniqueID, ]
 #check
 unique(checksub$secID) #209 total 
 
+
+
+
+#try with secchi value as well, see if theyre different
+cwd98to18 = cwd98to18 %>%  mutate(secID2 = paste(secID, secchi, sep='_'))
+dep98to18 = dep98to18 %>%  mutate(secID2 = paste(secID, secchi, sep='_'))
+#as vector
+cwdID2 = unique(cwd98to18$secID2)
+depID2 = unique(dep98to18$secID2)
+#identify IDs that exist in cwd db only
+cwdonly2 = setdiff(cwdID2, depID2)
+cwdonly2
+#identify IDs that exist in dep db only
+deponly2 = setdiff(depID2, cwdID2)
+deponly2
+#rbind
+check2 = rbind(cwd98to18, dep98to18)
+#combine uniqueID vectors
+uniqueID2 = c(cwdonly2, deponly2)
+
+#subset of all profiles that are in either cwd or dep dbs but NOT BOTH
+checksub2 = check2[check2$secID2 %in% uniqueID2, ]
+#check
+unique(checksub2$secID2) #332 total. compared to 209....
+
+checksub = checksub %>% select(lake,date,secchi,db,sampID,secID)
+checksub2 = checksub2 %>% select(lake,date,secchi,db,sampID,secID, secID2)
+# use second method, with secchi in ID
+
 #subset of cwd 98-18 profiles NOT in dep df, to be added to dep df
-cwdpre2019unique = cwd98to18[cwd98to18$secID %in% cwdonly, ]
+cwdpre2019unique = cwd98to18[cwd98to18$secID2 %in% cwdonly2, ] #82 observations compared to 38
 
 #subset cwd 2019/20
 cwd1920 = cwdsurv %>% 
@@ -214,7 +244,7 @@ cwd1920 = cwdsurv %>%
 names(depsurv)
 names(cwdpre2019unique)
 names(cwd1920)
-cwdpre2019unique = cwdpre2019unique %>% select(-secID)
+cwdpre2019unique = cwdpre2019unique %>% select(-secID, -secID2)
 surveythru2020 = rbind(depsurv, cwdpre2019unique)
 surveythru2020 = rbind(surveythru2020, cwd1920)
 names(surveythru2020)
@@ -222,9 +252,10 @@ names(surveythru2020)
 
 
 
-#CWD 21 ########
+#CWD 21/22 ########
 
 cwd21 = read.csv("https://raw.githubusercontent.com/mfarragher7/dbCWD/main/db.raw/db.cwd/cwd.secchi.2021.csv",header=T)
+cwd22 = read.csv("https://raw.githubusercontent.com/mfarragher7/dbCWD/main/db.raw/db.cwd/survey123/CWD_2022_GENERAL.csv",header=T)
 
 #lowercase and rename cols
 cwd21 = cwd21 %>% 
@@ -235,15 +266,49 @@ cwd21 = cwd21 %>%
   mutate(date = as.Date(date, format='%m/%d/%Y'))
 length(unique(cwd21$date)) #number of unique sample dates
 
-#rename lakes
-unique(cwd21$lake)
-#check midas first
-cwd21 = cwd21 %>% mutate(midascheck = paste(midas,lake))
-unique(cwd21$midascheck)
-#save
-temp1 = plyr::count(cwd21$lake)
-temp = plyr::count(cwd21$midascheck)
+cwd22 = cwd22 %>% 
+  set_names(~ str_to_lower(.)) %>% 
+  mutate_all(~ str_to_lower(.)) %>% 
+  dplyr::rename(lake=laknam) %>% 
+  dplyr::rename(date=sampdate) %>% 
+  mutate(db='cwd22')
+
+  
+#merge
+names(cwd21)
+names(cwd22)
+
+#fix columns
 cwd21 = cwd21 %>% 
+  mutate(sampID=paste(midas, station, date, agency, sep="_")) %>% 
+  mutate(time=NA) %>% 
+  mutate(comments=NA) %>% 
+  rename(scope=scopetype) %>% 
+  rename(seccbot=bottom) %>% 
+  rename(secchi=depth) %>% 
+  rename(qa_cert=qacert)%>% 
+  mutate(surveyors = paste(surveyor1,surveyor2,surveyor3,surveyor4, sep=',')) %>% 
+  select(-surveyor1,-surveyor2,-surveyor3,-surveyor4) %>% 
+  mutate(db='cwd21')
+
+cwd22 = cwd22 %>% 
+  mutate(sampID=paste(midas, station, date, agency, sep="_")) %>% 
+  mutate(surveyors = paste(surveyor1,surveyor2,surveyor3,surveyor4, sep=',')) %>% 
+  select(-surveyor1,-surveyor2,-surveyor3,-surveyor4)
+
+cwd2122 = rbind(cwd21,cwd22)
+
+
+
+#rename lakes
+unique(cwd2122$lake)
+#check midas first
+cwd2122 = cwd2122 %>% mutate(midascheck = paste(midas,lake))
+unique(cwd2122$midascheck)
+#save
+temp1 = plyr::count(cwd2122$lake)
+temp = plyr::count(cwd2122$midascheck)
+cwd2122 = cwd2122 %>% 
   mutate(lake = replace(lake, midas==9961, 'annabessacook')) %>% 
   mutate(lake = replace(lake, midas==3828, 'berry')) %>% 
   mutate(lake = replace(lake, midas==5242, 'buker')) %>% 
@@ -269,31 +334,18 @@ cwd21 = cwd21 %>%
   mutate(lake = replace(lake, midas==5307,'torsey')) %>% 
   mutate(lake = replace(lake, midas==3832,'wilson')) %>% 
   mutate(lake = replace(lake, midas==5240,'woodbury'))
-temp2 = plyr::count(cwd21$lake)
+temp2 = plyr::count(cwd2122$lake)
 #check for same number. yup
 sum(temp1$freq)
 sum(temp2$freq)
 
 #check stuff
-unique(cwd21$station)
-unique(cwd21$agency)
-names(cwd21)
+unique(cwd2122$station)
+unique(cwd2122$agency)
+names(cwd2122)
+cwd2122 = cwd2122 %>% select(-midascheck)
 
-#fix columns
-cwd21 = cwd21 %>% 
-  mutate(sampID=paste(midas, station, date, agency, sep="_")) %>% 
-  mutate(time=NA) %>% 
-  mutate(comments=NA) %>% 
-  rename(scope=scopetype) %>% 
-  rename(seccbot=bottom) %>% 
-  rename(secchi=depth) %>% 
-  rename(qa_cert=qacert)%>% 
-  mutate(surveyors = paste(surveyor1,surveyor2,surveyor3,surveyor4, sep=',')) %>% 
-  select(-surveyor1,-surveyor2,-surveyor3,-surveyor4,-midascheck,-project) %>% 
-  mutate(db='cwd21')
-  
-
-names(cwd21)
+names(cwd2122)
 names(surveythru2020)
 
 survey.full = rbind(cwd21,surveythru2020)

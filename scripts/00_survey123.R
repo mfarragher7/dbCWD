@@ -167,6 +167,8 @@ gen_names = c("LAKNAM",
               "REP",
               "QA_CERT",
               "GLOEO",
+              'LAT',
+              'LONG',
               "COMMENTS")
 
 names(General)
@@ -193,6 +195,8 @@ General = General %>%
          "Reading #",
          "QA Certification #",
          gloeo_rank, 
+         latitude,
+         longitude,
          notes_general)
 
 names(General)

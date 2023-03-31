@@ -348,11 +348,11 @@ cwd2122 = cwd2122 %>% select(-midascheck)
 names(cwd2122)
 names(surveythru2020)
 
-survey.full = rbind(cwd21,surveythru2020)
+survey.full = rbind(cwd2122,surveythru2020)
 
 survey.full = survey.full %>% 
   select(sampID, midas, lake, station, 
-         date, time, agency, db, 
+         date, time, agency, project, db, 
          secchi, rep, seccbot, scope, 
          surveyors, qa_cert, 
          windvel, winddir, cloudcvr, 
@@ -362,7 +362,79 @@ survey.full = survey.full %>%
 
 
 #* QC ######
+#general
 names(survey.full)
+str(survey.full)
+unique(survey.full$midas)
+survey.full$midas = as.numeric(survey.full$midas)
+unique(survey.full$lake)
+unique(survey.full$date)
+unique(survey.full$station)
+survey.full$station = as.numeric(survey.full$station)
+unique(survey.full$comments)
+unique(survey.full$lat)
+unique(survey.full$long) #should all be negative, ill fix that one day
+unique(survey.full$agency)
+unique(survey.full$project)
+survey.full$project = as.numeric(survey.full$project)
+unique(survey.full$db)
+
+#secchi
+str(survey.full$secchi)
+length(survey.full$secchi)
+survey.full$secchi = as.numeric(survey.full$secchi)
+summary(survey.full$secchi)
+temp1 = plyr::count(survey.full$secchi)
+#99 obviously not real. 72 should be 5.72
+survey.full = survey.full %>% 
+  mutate(secchi = replace(secchi,secchi==72.00,5.72)) %>% 
+  filter(secchi < 99)
+#leave NA values. but remove duplicates
+survey.full$dups = paste(survey.full$midas,
+                         survey.full$station,
+                         survey.full$date,
+                         survey.full$secchi,
+                         survey.full$qa_cert,
+                         survey.full$rep,
+                         sep='_')
+dups = plyr::count(survey.full$dups)
+dups_ = dups %>% filter(freq>1) #184 dups
+#drop 5254_3_2022-09-10_4.13_fi-xxxx_1, the ones with no lat/long
+survey.full = survey.full %>% 
+  filter(!(grepl('5254_3_2022-09-10_4.13_fi-xxxx_1', dups) & is.na(lat)))
+#other one with 4 duplicates, 98_1_1998-06-29_4.75__1
+#^^ all the same reading. will be removed with distinct()
+#all others are duplicated once (so there's 2) so distinct() will remove dups
+survey.full = survey.full %>% distinct(dups,  .keep_all = TRUE)
+str(survey.full$secchi)
+summary(survey.full$secchi)
+
+#secchi bottom
+str(survey.full$seccbot)
+unique(survey.full$seccbot)
+temp1 = plyr::count(survey.full$seccbot)
+#NA where blank
+survey.full = survey.full %>% mutate(seccbot = na_if(seccbot,''))
+#change 'b' to 'y'
+survey.full = survey.full %>% mutate(seccbot = replace(seccbot, seccbot=='b', 'y'))
+temp2 = plyr::count(survey.full$seccbot)
+#scope
+str(survey.full$scope)
+unique(survey.full$scope)
+survey.full$scope = as.numeric(survey.full$scope)
+
+#seems fine!
+#rep
+str(survey.full$rep)
+unique(survey.full$rep)
+survey.full$rep = as.numeric(survey.full$rep)
+
+#qacert
+str(survey.full$qa_cert)
+unique(survey.full$qa_cert)
+survey.full = survey.full %>% mutate(qa_cert = na_if(qa_cert,''))
+survey.full = survey.full %>% 
+  mutate(qa_cert = replace(qa_cert,qa_cert=='fi-xxxx','fi-3142'))
 
 #wind velocity
 str(survey.full$windvel)
@@ -389,52 +461,9 @@ unique(survey.full$cloudcvr)
 survey.full = survey.full %>% mutate(cloudcvr = na_if(cloudcvr,''))
 #numeric and character... hmm
 
-#secchi
-str(survey.full$secchi)
-length(survey.full$secchi)
-temp1 = plyr::count(survey.full$secchi)
-survey.full$secchi = as.numeric(survey.full$secchi)
-summary(survey.full$secchi)
-
-#secchi bottom
-str(survey.full$seccbot)
-unique(survey.full$seccbot)
-temp1 = plyr::count(survey.full$seccbot)
-#NA where blank
-survey.full = survey.full %>% mutate(seccbot = na_if(seccbot,''))
-#change 'b' to 'y'
-survey.full = survey.full %>% mutate(seccbot = replace(seccbot, seccbot=='b', 'y'))
-temp2 = plyr::count(survey.full$seccbot)
-#scope
-str(survey.full$scope)
-unique(survey.full$scope)
-#seems fine!
-#rep
-str(survey.full$rep)
-unique(survey.full$rep)
-#qacert
-str(survey.full$qa_cert)
-unique(survey.full$qa_cert)
-survey.full = survey.full %>% mutate(qa_cert = na_if(qa_cert,''))
 #gloeo?
 str(survey.full$gloeo)
 unique(survey.full$gloeo)
-#comments
-unique(survey.full$comments)
-#check for issues and mark resolved
-
-
-
-
-
-
-## REMOVE DUPLICATES!!!!!!!!
-
-################################################
-
-
-
-
 
 
 

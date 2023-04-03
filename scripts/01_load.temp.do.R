@@ -397,7 +397,7 @@ dups %>% filter(freq==2) #192 duplicate depth/temp/do
 #192 duplicate readings mostly from 2022 but not all 
 
 profiles = profiles %>% 
-  distinct(dups)
+  distinct(dups,  .keep_all = TRUE)
 
 dups2 = plyr::count(profiles$dups)
 #no more duplicates
@@ -415,6 +415,10 @@ write.csv(profiles, "C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/library/profiles
 
 
 #Summary stats ###########
+
+
+library(plyr)
+
 #summarize all profiles
 profiles = read.csv('https://raw.githubusercontent.com/mfarragher7/dbCWD/main/library/profiles.1975-2022.csv',header=T)
 names(profiles)

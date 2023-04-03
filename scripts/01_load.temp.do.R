@@ -425,7 +425,7 @@ names(profiles)
 str(profiles)
 
 #summary of each profile
-spro = ddply(profiles, .(sampID, midas, lake, station, date, agency, db), summarize, 
+spro = ddply(profiles, .(sampID, midas, lake, station, date, agency, project, db), summarize, 
              profile.max.depth = max(depth),
              #temp - min, max, mean, sd, se, thermocline depth, etc
              temp.min = min(temp), 
@@ -456,34 +456,34 @@ for (i in 1:length(samp)){ #for every unique sample,
   td = profiles[profiles$sampID == samp[i], ] #temp dataframe that subsets profile df by each sampID
   td = td[!duplicated(td$depth), ] #remove duplicate depths
   thermo = thermo.depth(td$temp, td$depth, seasonal=FALSE, index=FALSE, mixed.cutoff=1) #run thermo.depth function
-  spro[i,14] = thermo[1]  #paste thermocline depth in 12th column of row i*j == i in spro df
+  spro[i,15] = thermo[1]  #paste thermocline depth in 12th column of row i*j == i in spro df
   #epi temp
   td1 = td[td$depth < thermo[1], ] #subset each df with depths above thermocline depth
   epi.temp = mean(td1$temp) #get average temp of epi from subsetted df
-  spro[i,15] = epi.temp[1] #paste epi temp
+  spro[i,16] = epi.temp[1] #paste epi temp
   #hypo temp
   td2 = td[td$depth > thermo[1], ] #subset each df with depths below thermocline depth
   hypo.temp = mean(td2$temp) #get average temp of hypo from subsetted df
-  spro[i,16] = hypo.temp[1] 
+  spro[i,17] = hypo.temp[1] 
   #top5m
   td3 = td[td$depth <= 5,] #subset top 5m from each profile
   top5temp = mean(td3$temp) #mean temp of top 5m
-  spro[i,17] = top5temp[1] }  #paste hypo temp, close loop
+  spro[i,18] = top5temp[1] }  #paste hypo temp, close loop
 
 # get meta depths
 for (i in 1:length(samp)){ #for every unique sample,
   td = profiles[profiles$sampID == samp[i], ] #temp dataframe that subsets profile df by each sampID
   td = td[!duplicated(td$depth), ] #remove duplicate depths
   meta = meta.depths(td$temp, td$depth, slope=0.1, seasonal=F, mixed.cutoff=1) 
-  spro[i,18] = meta[1]   #top
-  spro[i,19] = meta[2] }  #bottom
+  spro[i,19] = meta[1]   #top
+  spro[i,20] = meta[2] }  #bottom
 
 # get max DO depth for each profile
 for (i in 1:length(samp)){ #for every unique sample,
   td = profiles[profiles$sampID == samp[i], ] #temp dataframe that subsets profile df by each sampID
   td = td[td$oxygen == max(td$oxygen),] #subset row of only max oxygen
   do.max.depth = td$depth #save depth at max do
-  spro[i,25] = do.max.depth[1] }   #paste depth of max DO 
+  spro[i,26] = do.max.depth[1] }   #paste depth of max DO 
 
 #check 
 test1 = spro %>% filter(lake=='dexter' & date=='2013-05-22')
@@ -510,7 +510,12 @@ spro$month = lubridate::month(spro$date)
 temp = plyr::count(spro$sampID) #one of each....good, if true.,..,
 
 
-write.csv(spro, "C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/library/profiles.1975-2021.summary.csv", row.names = F)
+write.csv(spro, "C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/library/profiles.1975-2022.summary.csv", row.names = F)
+
+
+
+
+
 
 #undated and re-ran 2023-01-12 with new 2021 datas
 

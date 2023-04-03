@@ -121,8 +121,8 @@ cwdpro = cwdpro %>%
   set_names(~ str_to_lower(.)) %>% 
   mutate_all(~ str_to_lower(.)) %>% 
   dplyr::rename(station=basin) %>% 
-  dplyr::rename(date=sampdate)
-
+  dplyr::rename(date=sampdate) 
+cwdpro$project = 3
 #format date
 cwdpro$date = as.Date(cwdpro$date, format='%m/%d/%Y')
 
@@ -190,7 +190,7 @@ names(deppro)
 #subset 98-18. will be pulling out unique profiles (CWD only) from sampIDs to add to 'complete' db
 cwdpro98to18 = cwdpro %>% 
   filter(date > '1998-01-01' & date < '2018-12-31') %>% 
-  select(sampID, midas,lake,station,date,agency,depth,temp,oxygen,oxymeth,year,month) %>% 
+  select(sampID, midas,lake,station,date,agency,project,depth,temp,oxygen,oxymeth,year,month) %>% 
   mutate(db='cwd') %>% 
   mutate(meter=NA) %>% 
   mutate(calib=NA)
@@ -198,8 +198,14 @@ cwdpro98to18 = cwdpro %>%
 #subset same timeframe. wont be using this subsetted db in 'complete' db 
 deppro98to18 = deppro %>% 
   filter(date > '1998-01-01' & date < '2018-12-31') %>% 
-  select(sampID,midas,lake,station,date,agency,depth,temp,oxygen,oxymeth,meter,calib,year,month) %>% 
+  select(sampID,midas,lake,station,date,agency,project,depth,temp,oxygen,oxymeth,meter,calib,year,month) %>% 
   mutate(db='dep')
+
+names(cwdpro98to18)
+names(deppro98to18)
+
+
+
 
 #get sampIDs as vector
 cwdproID = unique(cwdpro98to18$sampID)
@@ -234,7 +240,7 @@ cwdpro1920 = cwdpro %>%
   select(-midascheck)
 
 deppro = deppro %>% 
-  select(-project, -time, -midascheck) %>% 
+  select(-time, -midascheck) %>% 
   mutate(db='dep')
 
 
@@ -266,17 +272,17 @@ cwdpro21 = cwdpro21 %>%
 
 cwdpro21$date = as.Date(cwdpro21$date, format='%m/%d/%Y')
 
-
 cwdpro22 = cwdpro22 %>% 
   set_names(~ str_to_lower(.)) %>% 
   mutate_all(~ str_to_lower(.))%>% 
   dplyr::rename(lake=laknam) %>% 
   dplyr::rename(date=sampdate)
 
+#add db
+cwdpro21$db = 'cwd21'
+cwdpro22$db = 'cwd22'
 #combine 2021 and 2022
 cpro2122 = rbind(cwdpro21, cwdpro22)
-
-
 #format date
 cpro2122$date = as.Date(cpro2122$date)
 
@@ -328,15 +334,11 @@ sum(temp2$freq)
 #create sample id
 cpro2122 = cpro2122 %>% 
   mutate(sampID=paste(midas, station, date, agency, sep="_")) %>% 
-  mutate(db='cwd') %>% 
-  select(-midascheck, -project)
-
+  select(-midascheck)
 #get year and month
 cpro2122$year = lubridate::year(cpro2122$date)
 cpro2122$month = lubridate::month(cpro2122$date)
-
 names(cpro2122)
-
 #COMBINE
 profiles = rbind(profiles.thru2020, cpro2122)
 
@@ -369,13 +371,12 @@ profiles = profiles %>% filter(oxygen <50)
 unique(profiles$oxymeth)
 profiles = profiles %>% mutate(oxymeth = na_if(oxymeth,''))
 unique(profiles$meter)
-profiles =  profiles %>% select(-meter)
 unique(profiles$calib)
 profiles = profiles %>% mutate(calib = na_if(calib,''))
 profiles$midas = as.numeric(profiles$midas)
 unique(profiles$lake)
 unique(profiles$sampID)
-length(unique(profiles$sampID)) #6320 unique profiles
+length(unique(profiles$sampID)) #6334 unique profiles
 unique(profiles$db)
 str(profiles)
 
@@ -392,7 +393,7 @@ profiles$dups = paste(profiles$midas,
                       sep='_')
 
 dups = plyr::count(profiles$dups)
-dups %>% filter(freq==2)
+dups %>% filter(freq==2) #192 duplicate depth/temp/do
 #192 duplicate readings mostly from 2022 but not all 
 
 profiles = profiles %>% 
@@ -401,12 +402,11 @@ profiles = profiles %>%
 dups2 = plyr::count(profiles$dups)
 #no more duplicates
 
-
 #save
 write.csv(profiles, "C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/library/profiles.1975-2022.csv", row.names = F)
 
 
- 
+## push to github before continuing ##
 
 
 
@@ -414,17 +414,9 @@ write.csv(profiles, "C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/library/profiles
 
 
 
-
-
-
-
-
-
-
-
-#* summary ####
+#Summary stats ###########
 #summarize all profiles
-profiles = read.csv('https://raw.githubusercontent.com/mfarragher7/dbCWD/main/library/profiles.1975-2021.csv',header=T)
+profiles = read.csv('https://raw.githubusercontent.com/mfarragher7/dbCWD/main/library/profiles.1975-2022.csv',header=T)
 names(profiles)
 str(profiles)
 

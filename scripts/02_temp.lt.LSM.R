@@ -1400,17 +1400,22 @@ for (i in 1:length(lakes)){ #for every lake
 }
 
 
-#split deep and shallow lakes
+#mid-ass
+midass = yrprosub.droppedgaps %>% select(lake, midas)
+midass = midass %>% distinct(.keep_all = F)
+ytrends.new = join(ytrends.new, midass, by='lake')
+
 md = read.csv('https://raw.githubusercontent.com/mfarragher7/dbCWD/main/db.raw/lakemd.csv', header=T)
 md = md %>% 
   filter(station==1) %>% 
-  select(lake, depth_m) %>% 
+  select(midas, depth_m) %>% 
   set_names(~ str_to_lower(.)) %>% 
   mutate_all(~ str_to_lower(.)) 
 
-test = join(ytrends.new, md, by='lake')
+ytrends.new = join(ytrends.new, md, by='midas')
 str(ytrends.new)
 unique(ytrends.new$depth_m)
+ytrends.new$depth_m = as.numeric(ytrends.new$depth_m)
 
 
 #surface temp
@@ -1435,6 +1440,11 @@ ggplot(ytrends.new, aes(x=depth_m, y=hypo.sens.slope)) +
               geom = "smooth")
 
 
+
+
+
+
+#nice figure ##########
 longboi = ytrends.new %>% 
   pivot_longer(cols = c(st.sens.slope,
                       td.sens.slope,
@@ -1442,10 +1452,63 @@ longboi = ytrends.new %>%
                names_to = 'param',
                values_to = 'sens')
 
+longboi = longboi %>% 
+  mutate(param = replace(param, param=='st.sens.slope','Surface Temp')) %>% 
+  mutate(param = replace(param, param=='hypo.sens.slope','Hypolimnion Temp')) %>% 
+  mutate(param = replace(param, param=='td.sens.slope','Thermocline Depth'))
+  
+lm_eqn = function(longboi){
+  m = lm(sens ~ depth_m, longboi);
+  eq <- substitute(italic(b)~"="~bvalue*","~italic(r)^2~"="~r2, 
+                   list(bvalue = format(unname(coef(m)[2]), digits = 3),
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));}
+#save momth r2 labels
+eq = ddply(longboi,.(param),lm_eqn)
+#change geom_text size 
+update_geom_defaults("text", list(size = 4))
+
+
+ggplot(longboi, aes(x=depth_m, y=sens)) +
+  geom_point() +
+  stat_smooth(method = "lm",
+              formula = y ~ x,
+              geom = "smooth") + 
+  geom_text(data=eq,aes(x=16, y=0.18,label=V1), parse=T, inherit.aes=F) +
+  facet_grid(~param) +
+  labs(title=NULL,
+       x="Lake depth (m)",
+       y="Sen's Slope",
+       color='Lake') +
+  theme_bw() + 
+  theme(title=element_text(size=10),
+        strip.background=element_rect(fill='gray90'))
 
 
 
 
+
+
+ggplot(mmhypo.deep, aes(x=year, y=mm.hypo)) +
+  geom_point(aes(color = lake), shape=1, alpha=0.5) +
+  geom_line(aes(color = lake), stat="smooth", method='loess', size = 0.75,
+            linetype ="solid", alpha = 0.75, show.legend = F)  +
+  geom_line(stat="smooth", method='lm', linewidth = 1.25,
+            linetype ="solid", alpha = 0.75, show.legend = F, color='black')  +
+  geom_text(data=eq,aes(x=1990, y=23,label=V1), 
+            parse=T, inherit.aes=F) +
+  facet_wrap(~mm, ncol=2, nrow=2) +
+  scale_x_continuous(limits=c(1975,2022)) +
+  scale_y_continuous(limits=c(0,25), n.breaks = 6) +
+  #scale_color_manual(values=c('blue','green')) +
+  labs(title='Mean hypolimnion temperature - Monthly -  Deep lakes (>10m)',
+       x="Date",
+       y="Temperature (\u00b0C)",
+       color='Lake') +
+  guides(color = guide_legend(override.aes = list(shape=19, alpha=1))) +
+  theme_bw() + 
+  theme(title=element_text(size=10),
+        strip.background=element_rect(fill='gray90'))
 
 
 

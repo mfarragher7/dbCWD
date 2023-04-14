@@ -135,20 +135,20 @@ lm_eqn = function(yrprosub.droppedgaps){
   eq <- substitute(italic(b)~"="~bvalue*","~italic(r)^2~"="~r2, 
                    list(bvalue = format(unname(coef(m)[2]), digits = 3),
                         r2 = format(summary(m)$r.squared, digits = 3)))
-  as.character(as.expression(eq));
-}
+  as.character(as.expression(eq));}
+
 #save label
 eq = ddply(yrprosub.droppedgaps,.(), lm_eqn)
 
 #change geom_text size
-update_geom_defaults("text", list(size = 4))
+update_geom_defaults("text", list(size = 5))
 
 ggplot(yrprosub.droppedgaps, 
        aes(x=year, y=yr.temp.top5m)) +
   geom_point(aes(color = lake), shape=1, alpha=0.5) +
   geom_line(aes(color = lake), stat="smooth", method='loess', linewidth = 0.75,
             linetype ="solid", alpha = 0.75, show.legend = F)  +
-  geom_line(stat="smooth", method='lm', linewidth = 1.5,
+  geom_line(stat="smooth", method='lm', linewidth = 1.25,
             linetype ="solid", alpha = 0.75, show.legend = F)  +
   scale_x_continuous(limits=c(1975,2022)) +
   scale_y_continuous(limits=c(16,26), n.breaks = 6) +
@@ -385,7 +385,7 @@ lm_eqn = function(monthprosub.droppedsome){
 #save momth r2 labels
 eq = ddply(monthprosub.droppedsome,.(mm),lm_eqn)
 #change geom_text size lol
-update_geom_defaults("text", list(size = 3))
+update_geom_defaults("text", list(size = 4))
                      
 ggplot(monthprosub.droppedsome, aes(x=year, y=mm.temp.top5m)) +
   geom_point(aes(color = lake), shape=1, alpha=0.5) +
@@ -438,12 +438,12 @@ lm_eqn = function(yrpro.shallow){
   eq <- substitute(italic(b)~"="~bvalue*","~italic(r)^2~"="~r2, 
                    list(bvalue = format(unname(coef(m)[2]), digits = 3),
                         r2 = format(summary(m)$r.squared, digits = 3)))
-  as.character(as.expression(eq));
-}
+  as.character(as.expression(eq));}
+
 #save label
 eq = ddply(yrpro.shallow,.(), lm_eqn)
 #change geom_text size lol
-update_geom_defaults("text", list(size = 4))
+update_geom_defaults("text", list(size = 5))
 
 ggplot(yrpro.shallow, 
        aes(x=year, y=yr.temp.top5m)) +
@@ -457,7 +457,7 @@ ggplot(yrpro.shallow,
   scale_x_continuous(limits=c(1975,2022)) +
   scale_y_continuous(limits=c(16,26), n.breaks = 6) +
   #scale_color_manual(values = palette.colors(palette = "Okabe-Ito")) +
-  labs(title='Mean Summer surface temperature trends - Shallow lakes (<= 10m)',
+  labs(title='Mean Summer surface temperature trends - Shallow lakes (\u2264 10m)',
        x="Date",
        y="Temp C",
        color='Lake') +
@@ -507,7 +507,7 @@ ggplot(mpro.shallow, aes(x=year, y=mm.temp.top5m)) +
   scale_x_continuous(limits=c(1975,2022)) +
   scale_y_continuous(limits=c(5,30), n.breaks = 6) +
   #scale_color_manual(values=c('blue','green')) +
-  labs(title='Mean monthly temperature - Shallow lakes (<= 10m)',
+  labs(title='Mean monthly temperature - Shallow lakes (\u2264 10m)',
        x="Date",
        y="Temp C",
        color='Lake') +
@@ -528,62 +528,6 @@ yrpro.deep = yrprosub.droppedgaps %>% filter(max.depth > 10)
 unique(yrpro.deep$lake)
 
 
-#*stats #######
-ytrends.deep = ddply(yrpro.deep, 
-                     .(lake), 
-                     summarize, 
-                     n.years = length(unique(year)),
-                     first.year = min(year),
-                     n.pro = sum(n.profiles),
-                     temp5m.mean = mean(yr.temp.top5m),
-                     temp5m.sd = sd(yr.temp.top5m),
-                     temp5m.min = min(yr.temp.top5m),
-                     temp5m.max = max(yr.temp.top5m),
-                     td.mean = mean(yr.thermo.depth),
-                     td.sd = sd(yr.thermo.depth),
-                     td.min = min(yr.thermo.depth),
-                     td.max = max(yr.thermo.depth),
-                     hypo.mean = mean(yr.thermo.depth),
-                     hypo.sd = sd(yr.thermo.depth),
-                     hypo.min = min(yr.thermo.depth),
-                     hypo.max = max(yr.thermo.depth),
-                     st.sens.slope = NA,
-                     st.sens.p = NA,
-                     td.sens.slope = NA,
-                     td.sens.p = NA,
-                     hypo.sens.slope = NA,
-                     hypo.sens.p = NA)
-
-lakes = unique(ytrends.deep$lake)                
-
-for (i in 1:length(lakes)){ #for every lake
-  #surface temp
-  td = yrpro.deep[yrpro.deep$lake == lakes[i], ] 
-  td = td %>% drop_na(yr.temp.top5m)
-  ss = trend::sens.slope(td$yr.temp.top5m) #run sens slope fxn
-  ytrends.deep[i,17] =  ss[1]  #sens slope
-  ytrends.deep[i,18] =  ss[3]  #sens p
-  #thermocline
-  td = yrpro.deep[yrpro.deep$lake == lakes[i], ] 
-  td = td %>% drop_na(yr.thermo.depth)
-  ss = trend::sens.slope(td$yr.thermo.depth) #run sens slope fxn
-  ytrends.deep[i,19] =  ss[1]  #sens slope
-  ytrends.deep[i,20] =  ss[3]  #sens p
-  #hypo
-  td = yrpro.deep[yrpro.deep$lake == lakes[i], ] 
-  td = td %>% drop_na(yr.temp.hypo)
-  ss = trend::sens.slope(td$yr.temp.hypo) #run sens slope fxn
-  ytrends.deep[i,21] =  ss[1]  #sens slope
-  ytrends.deep[i,22] =  ss[3]  #sens p
-}
-
-#change per decade
-mean(ytrends.deep$st.sens.slope) * 10
-mean(ytrends.deep$td.sens.slope) * 10
-mean(ytrends.deep$hypo.sens.slope) * 10
-
-
-
 #*FIG - deep summer temps ########
 #overall surface temp trends
 
@@ -598,7 +542,7 @@ lm_eqn = function(yrpro.deep){
 #save label
 eq = ddply(yrpro.deep,.(), lm_eqn)
 #change geom_text size lol
-update_geom_defaults("text", list(size = 4))
+update_geom_defaults("text", list(size = 5))
 
 #one trendline
 ggplot(yrpro.deep, 
@@ -629,8 +573,6 @@ ggplot(yrpro.deep,
 #*FIG - deep monthly #######
 mpro.deep = monthprosub.droppedsome %>% filter(max.depth > 10)
 unique(mpro.deep$lake)
-mpro.shallow = monthprosub.droppedsome %>% filter(max.depth <= 10)
-unique(mpro.shallow$lake)
 
 #with one trendline
 #function for getting labels for each month (mm)
@@ -639,11 +581,12 @@ lm_eqn = function(mpro.deep){
   eq <- substitute(italic(b)~"="~bvalue*","~italic(r)^2~"="~r2, 
                    list(bvalue = format(unname(coef(m)[2]), digits = 3),
                         r2 = format(summary(m)$r.squared, digits = 3)))
-  as.character(as.expression(eq));
-}
-
+  as.character(as.expression(eq));}
 #save momth r2 labels
 eq = ddply(mpro.deep,.(mm),lm_eqn)
+#change geom_text size
+update_geom_defaults("text", list(size = 4))
+
 
 ggplot(mpro.deep, aes(x=year, y=mm.temp.top5m)) +
   geom_point(aes(color = lake), shape=1, alpha=0.5) +
@@ -651,7 +594,7 @@ ggplot(mpro.deep, aes(x=year, y=mm.temp.top5m)) +
             linetype ="solid", alpha = 0.75, show.legend = F)  +
   geom_line(stat="smooth", method='lm', linewidth = 1,
             linetype ="solid", alpha = 0.75, show.legend = F, color='black')  +
-  geom_text(data=eq,aes(x=1997, y=29,label=V1), 
+  geom_text(data=eq,aes(x=1995, y=29,label=V1), 
             parse=T, inherit.aes=F) +
   facet_wrap(~mm, ncol=3, nrow=2) +
   scale_x_continuous(limits=c(1975,2022)) +
@@ -675,12 +618,28 @@ ggplot(mpro.deep, aes(x=year, y=mm.temp.top5m)) +
 
 
 #Thermocline ######
+
+#overall trend
+lm_eqn = function(yrprosub.droppedgaps){
+  m = lm(yr.thermo.depth ~ year, yrprosub.droppedgaps);
+  eq <- substitute(italic(b)~"="~bvalue*","~italic(r)^2~"="~r2, 
+                   list(bvalue = format(unname(coef(m)[2]), digits = 3),
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));}
+#save momth r2 labels
+eq = ddply(yrprosub.droppedgaps,.(),lm_eqn)
+
 ggplot(yrprosub.droppedgaps,
-       aes(x=year, y=yr.thermo.depth, color=lake)) +
-  geom_point(shape=1, alpha=0.55) +
-  geom_line(stat="smooth", method='loess', size = 0.75,
+       aes(x=year, y=yr.thermo.depth)) +
+  geom_point(aes(color=lake), shape=1, alpha=0.55) +
+  geom_line(aes(color=lake), stat="smooth", method='loess', size = 0.75,
             linetype ="solid", alpha = 0.75, show.legend = F)  +
+  geom_line(stat="smooth", method='lm', linewidth = 1.5,
+            linetype ="solid", alpha = 0.75, show.legend = F)  +
+  geom_text(data=eq,aes(x=1985, y=1,label=V1), 
+            parse=T, inherit.aes=F) +
   scale_x_continuous(limits=c(1975,2022)) +
+  scale_y_reverse(limits=c(10,0), n.breaks=6) +
   labs(title='Mean thermocline depth Summer (June to 14-Sep)',
        x="Date",
        y="Thermocline depth (m)",
@@ -690,7 +649,9 @@ ggplot(yrprosub.droppedgaps,
   theme(title=element_text(size=10),
         strip.background=element_rect(fill='gray90'))
 
-#Thermocline trends 
+
+
+#*Thermo stats ###### 
 thermoclinetrends = ddply(yrprosub.droppedgaps, 
                           .(lake), 
                           summarize, 
@@ -745,7 +706,7 @@ ggplot(thermoclinetrends,
   geom_text(hjust = 1.25,
             vjust = 0.65,
             size = 6) + 
-  scale_fill_manual(values = c('#37C1E6','#FF8778')) +
+  scale_fill_manual(values = c('lightblue','darkblue')) +
   coord_flip() +
   scale_y_continuous(limits=c(-0.5, 0.5)) +
   scale_x_discrete(labels=c("little cobbossee"=expression(bold('little cobbossee')),
@@ -753,6 +714,7 @@ ggplot(thermoclinetrends,
                             "carlton"=expression(bold(carlton)),
                             "jimmy"=expression(bold(jimmy)),
                             "narrows upper"=expression(bold('narrows upper')),
+                            "narrows lower"=expression(bold('narrows lower')),
                             "wilson"=expression(bold(wilson)))) +
   labs(y = 'Thermocline depth change (m \u00b7 decade\U207b\u00b9)',
        x = NULL,
@@ -763,45 +725,37 @@ ggplot(thermoclinetrends,
 
 
 
-#*Shallow thermo ########
 
 
+#Thermo monthly ########
+#get labels 
+#subset df for jun jul aug sep
+mmtherm = monthprosub.droppedsome %>% 
+  filter(mm=='Jun' |mm=='Jul' | mm=='Aug' | mm=='Sep')
 
+lm_eqn = function(mmtherm){
+  m = lm(mm.td ~ year, mmtherm);
+  eq <- substitute(italic(b)~"="~bvalue*","~italic(r)^2~"="~r2, 
+                   list(bvalue = format(unname(coef(m)[2]), digits = 3),
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));}
+#save momth r2 labels
+eq = ddply(mmtherm,.(mm),lm_eqn)
+#change geom_text size 
+update_geom_defaults("text", list(size = 4))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#*Shallow thermo monthly #######
-ggplot(filter(mpro.shallow, 
-              mm=='Jun' |
-                mm=='Jul' |
-                mm=='Aug' |
-                mm=='Sep'), aes(x=year, y=mm.td)) +
+ggplot(mmtherm, aes(x=year, y=mm.td)) +
   geom_point(aes(color = lake), shape=1, alpha=0.5) +
   geom_line(aes(color = lake), stat="smooth", method='loess', size = 0.75,
             linetype ="solid", alpha = 0.75, show.legend = F)  +
-  geom_line(stat="smooth", method='lm', linewidth = 1,
+  geom_line(stat="smooth", method='lm', linewidth = 1.25,
             linetype ="solid", alpha = 0.75, show.legend = F, color='black')  +
-  facet_wrap(~mm, ncol=2, nrow=2) +
+  facet_wrap(~mm, ncol=2, nrow=2, scales='fixed') +
+  geom_text(data=eq,aes(x=1991, y=0.5,label=V1), 
+            parse=T, inherit.aes=F) +
   scale_x_continuous(limits=c(1975,2022)) +
-  scale_y_continuous(limits=c(0,10), n.breaks = 6) +
-  #scale_color_manual(values=c('blue','green')) +
-  labs(title='Mean thermocline depth  Deep lakes (>10m) Monthly',
+  scale_y_reverse(limits=c(10,0), n.breaks=6) +
+  labs(title='Mean thermocline depth - Monthly',
        x="Date",
        y="Thermocline depth (m)",
        color='Lake') +
@@ -812,14 +766,115 @@ ggplot(filter(mpro.shallow,
 
 
 
+
+
+
+
+
+
+
+#*Shallow thermo ########
+lm_eqn = function(yrpro.shallow){
+  m = lm(yr.thermo.depth ~ year, yrpro.shallow);
+  eq <- substitute(italic(b)~"="~bvalue*","~italic(r)^2~"="~r2, 
+                   list(bvalue = format(unname(coef(m)[2]), digits = 3),
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));}
+#save momth r2 labels
+eq = ddply(yrpro.shallow,.(),lm_eqn)
+#change geom_text size 
+update_geom_defaults("text", list(size = 5))
+
+ggplot(yrpro.shallow,
+       aes(x=year, y=yr.thermo.depth)) +
+  geom_point(aes(color = lake), shape=1, alpha=0.5) +
+  geom_line(aes(color = lake), stat="smooth", method='loess', linewidth = 0.75,
+            linetype ="solid", alpha = 0.75, show.legend = F)  +
+  geom_line(stat="smooth", method='lm', linewidth = 1.25,
+            linetype ="solid", alpha = 0.75, show.legend = F, color='black')  +
+  geom_text(data=eq,aes(x=1983, y=0.5,label=V1), 
+            parse=T, inherit.aes=F) +
+  scale_x_continuous(limits=c(1975,2022)) +
+  scale_y_reverse(limits=c(8,0)) +
+  labs(title='Mean thermocline depth - Shallow lakes (\u2264 10m)',
+       x="Date",
+       y="Thermocline depth (m)",
+       color='Lake') +   
+  guides(color = guide_legend(override.aes = list(shape=19, alpha=1))) +
+  theme_bw() + 
+  theme(title=element_text(size=10),
+        strip.background=element_rect(fill='gray90'))
+
+
+
+
+
+#*Shallow thermo monthly #######
+#get shallow lakes 
+mmtherm.shallow = mmtherm %>% 
+  filter(max.depth <= 10)
+
+lm_eqn = function(mmtherm.shallow){
+  m = lm(mm.td ~ year, mmtherm.shallow);
+  eq <- substitute(italic(b)~"="~bvalue*","~italic(r)^2~"="~r2, 
+                   list(bvalue = format(unname(coef(m)[2]), digits = 3),
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));}
+#save momth r2 labels
+eq = ddply(mmtherm.shallow,.(mm),lm_eqn)
+#change geom_text size 
+update_geom_defaults("text", list(size = 4))
+
+ggplot(mmtherm.shallow, aes(x=year, y=mm.td)) +
+  geom_point(aes(color = lake), shape=1, alpha=0.5) +
+  geom_line(aes(color = lake), stat="smooth", method='loess', size = 0.75,
+            linetype ="solid", alpha = 0.75, show.legend = F)  +
+  geom_line(stat="smooth", method='lm', linewidth = 1.25,
+            linetype ="solid", alpha = 0.75, show.legend = F, color='black') +
+  geom_text(data=eq,aes(x=1992, y=0.5,label=V1), 
+            parse=T, inherit.aes=F) +
+  facet_wrap(~mm, ncol=2, nrow=2) +
+  scale_x_continuous(limits=c(1975,2022)) +
+  scale_y_reverse(limits=c(10,0), n.breaks = 6) +
+  #scale_color_manual(values=c('blue','green')) +
+  labs(title='Mean thermocline depth - Monthly - Shallow lakes (\u2264 10m)',
+       x="Date",
+       y="Thermocline depth (m)",
+       color='Lake') +
+  guides(color = guide_legend(override.aes = list(shape=19, alpha=1))) +
+  theme_bw() + 
+  theme(title=element_text(size=10),
+        strip.background=element_rect(fill='gray90'))
+
+
+
+
+
+
 #*Deep thermo ######
+lm_eqn = function(yrpro.deep){
+  m = lm(yr.thermo.depth ~ year, yrpro.deep);
+  eq <- substitute(italic(b)~"="~bvalue*","~italic(r)^2~"="~r2, 
+                   list(bvalue = format(unname(coef(m)[2]), digits = 3),
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));}
+#save momth r2 labels
+eq = ddply(yrpro.deep,.(),lm_eqn)
+#change geom_text size 
+update_geom_defaults("text", list(size = 5))
+
 ggplot(yrpro.deep,
        aes(x=year, y=yr.thermo.depth, color=lake)) +
-  geom_point(shape=1, alpha=0.5) +
-  geom_line(stat="smooth", method='loess', size = 1,
+  geom_point(aes(color = lake), shape=1, alpha=0.5) +
+  geom_line(aes(color = lake), stat="smooth", method='loess', size = 0.75,
             linetype ="solid", alpha = 0.75, show.legend = F)  +
+  geom_line(stat="smooth", method='lm', linewidth = 1.25,
+            linetype ="solid", alpha = 0.75, show.legend = F, color='black') +
+  geom_text(data=eq,aes(x=1983, y=0.5,label=V1), 
+            parse=T, inherit.aes=F) +
   scale_x_continuous(limits=c(1975,2022)) +
-  labs(title='Mean thermocline depth Summer (June to 14-Sep) Deep lakes (>10m)',
+  scale_y_reverse(limits=c(10,0), n.breaks = 6) +
+  labs(title='Mean thermocline depth Summer (June to 14-Sep) - Deep lakes (>10m)',
        x="Date",
        y="Thermocline depth (m)",
        color='Lake') +   
@@ -831,21 +886,34 @@ ggplot(yrpro.deep,
 
 
 #Deep thermo monthly #######
-ggplot(filter(mpro.deep, 
-              mm=='Jun' |
-                mm=='Jul' |
-                mm=='Aug' |
-                mm=='Sep'), aes(x=year, y=mm.td)) +
+#get shallow lakes 
+mmtherm.deep = mmtherm %>% 
+  filter(max.depth > 10)
+
+lm_eqn = function(mmtherm.deep){
+  m = lm(mm.td ~ year, mmtherm.deep);
+  eq <- substitute(italic(b)~"="~bvalue*","~italic(r)^2~"="~r2, 
+                   list(bvalue = format(unname(coef(m)[2]), digits = 3),
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));}
+#save momth r2 labels
+eq = ddply(mmtherm.deep,.(mm),lm_eqn)
+#change geom_text size 
+update_geom_defaults("text", list(size = 4))
+
+ggplot(mmtherm.deep, aes(x=year, y=mm.td)) +
   geom_point(aes(color = lake), shape=1, alpha=0.5) +
   geom_line(aes(color = lake), stat="smooth", method='loess', size = 0.75,
             linetype ="solid", alpha = 0.75, show.legend = F)  +
-  geom_line(stat="smooth", method='lm', linewidth = 1,
+  geom_line(stat="smooth", method='lm', linewidth = 1.25,
             linetype ="solid", alpha = 0.75, show.legend = F, color='black')  +
+  geom_text(data=eq,aes(x=1990, y=0.5,label=V1), 
+            parse=T, inherit.aes=F) +
   facet_wrap(~mm, ncol=2, nrow=2) +
   scale_x_continuous(limits=c(1975,2022)) +
-  scale_y_continuous(limits=c(0,15), n.breaks = 6) +
+  scale_y_reverse(limits=c(15,0), n.breaks = 6) +
   #scale_color_manual(values=c('blue','green')) +
-  labs(title='Mean thermocline depth  Deep lakes (>10m) Monthly',
+  labs(title='Mean thermocline depth - Monthly - Deep lakes (>10m)',
        x="Date",
        y="Thermocline depth (m)",
        color='Lake') +
@@ -861,20 +929,40 @@ ggplot(filter(mpro.deep,
 
 
 #Hypolimnion ###########
+
+lm_eqn = function(yrprosub.droppedgaps){
+  m = lm(yr.temp.hypo ~ year, yrprosub.droppedgaps);
+  eq <- substitute(italic(b)~"="~bvalue*","~italic(r)^2~"="~r2, 
+                   list(bvalue = format(unname(coef(m)[2]), digits = 3),
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));}
+#save momth r2 labels
+eq = ddply(yrprosub.droppedgaps,.(),lm_eqn)
+#change geom_text size 
+update_geom_defaults("text", list(size = 5))
+
+
 ggplot(yrprosub.droppedgaps,
        aes(x=year, y=yr.temp.hypo, color=lake)) +
-  geom_point(shape=1, alpha=0.25) +
-  geom_line(stat="smooth", method='loess', size = 0.75,
+  geom_point(aes(color = lake), shape=1, alpha=0.5) +
+  geom_line(aes(color = lake), stat="smooth", method='loess', size = 0.75,
             linetype ="solid", alpha = 0.75, show.legend = F)  +
+  geom_line(stat="smooth", method='lm', linewidth = 1.25,
+            linetype ="solid", alpha = 0.75, show.legend = F, color='black')  +
+  geom_text(data=eq,aes(x=1985, y=24,label=V1), 
+            parse=T, inherit.aes=F) +
   scale_x_continuous(limits=c(1975,2022)) +
+  scale_y_continuous(limits=c(0,25)) +
   labs(title='Mean hypolimnion temperature Summer (June to 14-Sep)',
        x="Date",
-       y="Thermocline depth (m)",
+       y="Temperature (\u00b0C)",
        color='Lake')  +   
   guides(color = guide_legend(override.aes = list(shape=19, alpha=1))) +
   theme_bw() + 
   theme(title=element_text(size=10),
         strip.background=element_rect(fill='gray90'))
+
+
 
 #hypo trends
 hypo.trends = ddply(yrprosub.droppedgaps, 
@@ -947,39 +1035,37 @@ ggplot(hypo.trends,
 
 
 
+#Hypo monthly ###########
+#get labels 
+#subset df for jun jul aug sep
+mmhypo = monthprosub.droppedsome %>% 
+  filter(mm=='Jun' |mm=='Jul' | mm=='Aug' | mm=='Sep')
 
-#hypo 
-ggplot(yrpro.deep,
-       aes(x=year, y=yr.temp.hypo, color=lake)) +
-  geom_point(shape=1, alpha=0.5) +
-  geom_line(stat="smooth", method='loess', size = 1.25,
-            linetype ="solid", alpha = 0.75, show.legend = F)  +
-  scale_x_continuous(limits=c(1975,2022)) +
-  labs(title='Mean hypolimnion temperature Summer (June to 14-Sep) Deep lakes (>10m)',
-       x="Date",
-       y="Thermocline depth (m)",
-       color='Lake')  +   
-  guides(color = guide_legend(override.aes = list(shape=19, alpha=1))) +
-  theme_bw() + 
-  theme(title=element_text(size=10),
-        strip.background=element_rect(fill='gray90'))
+lm_eqn = function(mmhypo){
+  m = lm(mm.hypo ~ year, mmhypo);
+  eq <- substitute(italic(b)~"="~bvalue*","~italic(r)^2~"="~r2, 
+                   list(bvalue = format(unname(coef(m)[2]), digits = 3),
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));}
+#save momth r2 labels
+eq = ddply(mmhypo,.(mm),lm_eqn)
+#change geom_text size 
+update_geom_defaults("text", list(size = 4))
 
-
-
-#hypo monthly deep ##########
-ggplot(mpro.deep, aes(x=year, y=mm.hypo)) +
+ggplot(mmhypo, aes(x=year, y=mm.hypo)) +
   geom_point(aes(color = lake), shape=1, alpha=0.5) +
   geom_line(aes(color = lake), stat="smooth", method='loess', size = 0.75,
             linetype ="solid", alpha = 0.75, show.legend = F)  +
-  geom_line(stat="smooth", method='lm', linewidth = 1,
+  geom_line(stat="smooth", method='lm', linewidth = 1.25,
             linetype ="solid", alpha = 0.75, show.legend = F, color='black')  +
-  facet_wrap(~mm, ncol=3, nrow=2) +
+  geom_text(data=eq,aes(x=1993, y=24,label=V1), 
+            parse=T, inherit.aes=F) +
+  facet_wrap(~mm, ncol=2, nrow=2, scales='fixed') +
   scale_x_continuous(limits=c(1975,2022)) +
-  scale_y_continuous(limits=c(0,25), n.breaks = 6) +
-  #scale_color_manual(values=c('blue','green')) +
-  labs(title='Mean hypolimnion temperature - Monthly -  Deep lakes (>10m)',
+  scale_y_continuous(limits=c(0,25), n.breaks=6) +
+  labs(title='Mean hypolimnion temperature - Monthly',
        x="Date",
-       y="Temp C",
+       y="Temperature (\u00b0C)",
        color='Lake') +
   guides(color = guide_legend(override.aes = list(shape=19, alpha=1))) +
   theme_bw() + 
@@ -993,40 +1079,32 @@ ggplot(mpro.deep, aes(x=year, y=mm.hypo)) +
 
 
 
+#Shallow Hypo ####### 
+lm_eqn = function(yrpro.shallow){
+  m = lm(yr.temp.hypo ~ year, yrpro.shallow);
+  eq <- substitute(italic(b)~"="~bvalue*","~italic(r)^2~"="~r2, 
+                   list(bvalue = format(unname(coef(m)[2]), digits = 3),
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));}
+#save momth r2 labels
+eq = ddply(yrpro.shallow,.(),lm_eqn)
+#change geom_text size 
+update_geom_defaults("text", list(size = 5))
 
-
-
-
-
-
-
-
-#thermocline 
 ggplot(yrpro.shallow,
-       aes(x=year, y=yr.thermo.depth, color=lake)) +
-  geom_point(shape=1, alpha=0.5) +
-  geom_line(stat="smooth", method='loess', size = 1.25,
+       aes(x=year, y=yr.temp.hypo)) +
+  geom_point(aes(color = lake), shape=1, alpha=0.5) +
+  geom_line(aes(color = lake), stat="smooth", method='loess', size = 0.75,
             linetype ="solid", alpha = 0.75, show.legend = F)  +
+  geom_line(stat="smooth", method='lm', linewidth = 1.25,
+            linetype ="solid", alpha = 0.75, show.legend = F, color='black')  +
+  geom_text(data=eq,aes(x=1985, y=24,label=V1), 
+            parse=T, inherit.aes=F) +
   scale_x_continuous(limits=c(1975,2022)) +
-  labs(title='Mean thermocline depth Summer (June to 14-Sep) Deep lakes (>10m)',
+  scale_y_continuous(limits=c(5,25)) +
+  labs(title='Mean hypolimnion temperature - Shallow lakes (\u2264 10m)',
        x="Date",
-       y="Thermocline depth (m)",
-       color='Lake') +   
-  guides(color = guide_legend(override.aes = list(shape=19, alpha=1))) +
-  theme_bw() + 
-  theme(title=element_text(size=10),
-        strip.background=element_rect(fill='gray90'))
-
-#hypo 
-ggplot(yrpro.shallow,
-       aes(x=year, y=yr.temp.hypo, color=lake)) +
-  geom_point(shape=1, alpha=0.5) +
-  geom_line(stat="smooth", method='loess', size = 1.25,
-            linetype ="solid", alpha = 0.75, show.legend = F)  +
-  scale_x_continuous(limits=c(1975,2022)) +
-  labs(title='Mean hypolimnion temperature Summer (June to 14-Sep) Deep lakes (>10m)',
-       x="Date",
-       y="Thermocline depth (m)",
+       y="Temperature (\u00b0C)",
        color='Lake')  +   
   guides(color = guide_legend(override.aes = list(shape=19, alpha=1))) +
   theme_bw() + 
@@ -1034,25 +1112,148 @@ ggplot(yrpro.shallow,
         strip.background=element_rect(fill='gray90'))
 
 
-#* stats #######
+
+
+#*Shallow hypo Monthly ########
+#get shallow lakes 
+mmhypo.shallow = mmhypo %>% 
+  filter(max.depth <= 10)
+
+lm_eqn = function(mmhypo.shallow){
+  m = lm(mm.hypo ~ year, mmhypo.shallow);
+  eq <- substitute(italic(b)~"="~bvalue*","~italic(r)^2~"="~r2, 
+                   list(bvalue = format(unname(coef(m)[2]), digits = 3),
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));}
+#save momth r2 labels
+eq = ddply(mmhypo.shallow,.(mm),lm_eqn)
+#change geom_text size 
+update_geom_defaults("text", list(size = 4))
+
+
+ggplot(mmhypo.shallow, aes(x=year, y=mm.hypo)) +
+  geom_point(aes(color = lake), shape=1, alpha=0.5) +
+  geom_line(aes(color = lake), stat="smooth", method='loess', size = 0.75,
+            linetype ="solid", alpha = 0.75, show.legend = F)  +
+  geom_line(stat="smooth", method='lm', linewidth = 1,
+            linetype ="solid", alpha = 0.75, show.legend = F, color='black')  +
+  geom_text(data=eq,aes(x=1990, y=24,label=V1), 
+            parse=T, inherit.aes=F) +
+  facet_wrap(~mm, ncol=2, nrow=2) +
+  scale_x_continuous(limits=c(1975,2022)) +
+  scale_y_continuous(limits=c(0,25), n.breaks = 6) +
+  #scale_color_manual(values=c('blue','green')) +
+  labs(title='Mean hypolimnion temperature - Monthly -  Shallow lakes (\u2264 10m)',
+       x="Date",
+       y="Temperature (\u00b0C)",
+       color='Lake') +
+  guides(color = guide_legend(override.aes = list(shape=19, alpha=1))) +
+  theme_bw() + 
+  theme(title=element_text(size=10),
+        strip.background=element_rect(fill='gray90'))
+
+
+
+
+
+
+
+#Deep hypo ########
+lm_eqn = function(yrpro.deep){
+  m = lm(yr.temp.hypo ~ year, yrpro.deep);
+  eq <- substitute(italic(b)~"="~bvalue*","~italic(r)^2~"="~r2, 
+                   list(bvalue = format(unname(coef(m)[2]), digits = 3),
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));}
+#save momth r2 labels
+eq = ddply(yrpro.deep,.(),lm_eqn)
+#change geom_text size 
+update_geom_defaults("text", list(size = 5))
+
+
+ggplot(yrpro.deep,
+       aes(x=year, y=yr.temp.hypo)) +
+  geom_point(aes(color = lake), shape=1, alpha=0.5) +
+  geom_line(aes(color = lake), stat="smooth", method='loess', size = 0.75,
+            linetype ="solid", alpha = 0.75, show.legend = F)  +
+  geom_line(stat="smooth", method='lm', linewidth = 1.25,
+            linetype ="solid", alpha = 0.75, show.legend = F, color='black')  +
+  geom_text(data=eq,aes(x=1983, y=19,label=V1), 
+            parse=T, inherit.aes=F) +
+  scale_x_continuous(limits=c(1975,2022)) +
+  scale_y_continuous(limits=c(0,20)) +
+  labs(title='Mean hypolimnion temperature - Deep lakes (>10m)',
+       x="Date",
+       y="Temperature (\u00b0C)",
+       color='Lake')  +   
+  guides(color = guide_legend(override.aes = list(shape=19, alpha=1))) +
+  theme_bw() + 
+  theme(title=element_text(size=10),
+        strip.background=element_rect(fill='gray90'))
+
+
+
+
+
+#Deep Hypo monthly ##########
+mmhypo.deep = mmhypo %>% 
+  filter(max.depth > 10)
+
+lm_eqn = function(mmhypo.deep){
+  m = lm(mm.hypo ~ year, mmhypo.deep);
+  eq <- substitute(italic(b)~"="~bvalue*","~italic(r)^2~"="~r2, 
+                   list(bvalue = format(unname(coef(m)[2]), digits = 3),
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));}
+#save momth r2 labels
+eq = ddply(mmhypo.deep,.(mm),lm_eqn)
+#change geom_text size 
+update_geom_defaults("text", list(size = 4))
+
+ggplot(mmhypo.deep, aes(x=year, y=mm.hypo)) +
+  geom_point(aes(color = lake), shape=1, alpha=0.5) +
+  geom_line(aes(color = lake), stat="smooth", method='loess', size = 0.75,
+            linetype ="solid", alpha = 0.75, show.legend = F)  +
+  geom_line(stat="smooth", method='lm', linewidth = 1.25,
+            linetype ="solid", alpha = 0.75, show.legend = F, color='black')  +
+  geom_text(data=eq,aes(x=1990, y=23,label=V1), 
+            parse=T, inherit.aes=F) +
+  facet_wrap(~mm, ncol=2, nrow=2) +
+  scale_x_continuous(limits=c(1975,2022)) +
+  scale_y_continuous(limits=c(0,25), n.breaks = 6) +
+  #scale_color_manual(values=c('blue','green')) +
+  labs(title='Mean hypolimnion temperature - Monthly -  Deep lakes (>10m)',
+       x="Date",
+       y="Temperature (\u00b0C)",
+       color='Lake') +
+  guides(color = guide_legend(override.aes = list(shape=19, alpha=1))) +
+  theme_bw() + 
+  theme(title=element_text(size=10),
+        strip.background=element_rect(fill='gray90'))
+
+
+
+#STATS - Deep/Shallow ##############
+
+#*shallow #######
 ytrends.shallow = ddply(yrpro.shallow, 
                         .(lake), 
                         summarize, 
                         n.years = length(unique(year)),
                         first.year = min(year),
                         n.pro = sum(n.profiles),
-                        temp5m.mean = mean(yr.temp.top5m),
-                        temp5m.sd = sd(yr.temp.top5m),
-                        temp5m.min = min(yr.temp.top5m),
-                        temp5m.max = max(yr.temp.top5m),
-                        td.mean = mean(yr.thermo.depth),
-                        td.sd = sd(yr.thermo.depth),
-                        td.min = min(yr.thermo.depth),
-                        td.max = max(yr.thermo.depth),
-                        hypo.mean = mean(yr.thermo.depth),
-                        hypo.sd = sd(yr.thermo.depth),
-                        hypo.min = min(yr.thermo.depth),
-                        hypo.max = max(yr.thermo.depth),
+                        temp5m.mean = mean(yr.temp.top5m, na.rm=T),
+                        temp5m.sd = sd(yr.temp.top5m, na.rm=T),
+                        temp5m.min = min(yr.temp.top5m, na.rm=T),
+                        temp5m.max = max(yr.temp.top5m, na.rm=T),
+                        td.mean = mean(yr.thermo.depth, na.rm=T),
+                        td.sd = sd(yr.thermo.depth, na.rm=T),
+                        td.min = min(yr.thermo.depth, na.rm=T),
+                        td.max = max(yr.thermo.depth, na.rm=T),
+                        hypo.mean = mean(yr.thermo.depth, na.rm=T),
+                        hypo.sd = sd(yr.thermo.depth, na.rm=T),
+                        hypo.min = min(yr.thermo.depth, na.rm=T),
+                        hypo.max = max(yr.thermo.depth, na.rm=T),
                         st.sens.slope = NA,
                         st.sens.p = NA,
                         td.sens.slope = NA,
@@ -1091,33 +1292,161 @@ mean(ytrends.shallow$hypo.sens.slope) * 10
 
 
 
+#*deep #######
+ytrends.deep = ddply(yrpro.deep, 
+                     .(lake), 
+                     summarize, 
+                     n.years = length(unique(year)),
+                     first.year = min(year),
+                     n.pro = sum(n.profiles),
+                     temp5m.mean = mean(yr.temp.top5m, na.rm=T),
+                     temp5m.sd = sd(yr.temp.top5m, na.rm=T),
+                     temp5m.min = min(yr.temp.top5m, na.rm=T),
+                     temp5m.max = max(yr.temp.top5m, na.rm=T),
+                     td.mean = mean(yr.thermo.depth, na.rm=T),
+                     td.sd = sd(yr.thermo.depth, na.rm=T),
+                     td.min = min(yr.thermo.depth, na.rm=T),
+                     td.max = max(yr.thermo.depth, na.rm=T),
+                     hypo.mean = mean(yr.thermo.depth, na.rm=T),
+                     hypo.sd = sd(yr.thermo.depth, na.rm=T),
+                     hypo.min = min(yr.thermo.depth, na.rm=T),
+                     hypo.max = max(yr.thermo.depth, na.rm=T),
+                     st.sens.slope = NA,
+                     st.sens.p = NA,
+                     td.sens.slope = NA,
+                     td.sens.p = NA,
+                     hypo.sens.slope = NA,
+                     hypo.sens.p = NA)
+
+lakes = unique(ytrends.deep$lake)                
+
+for (i in 1:length(lakes)){ #for every lake
+  #surface temp
+  td = yrpro.deep[yrpro.deep$lake == lakes[i], ] 
+  td = td %>% drop_na(yr.temp.top5m)
+  ss = trend::sens.slope(td$yr.temp.top5m) #run sens slope fxn
+  ytrends.deep[i,17] =  ss[1]  #sens slope
+  ytrends.deep[i,18] =  ss[3]  #sens p
+  #thermocline
+  td = yrpro.deep[yrpro.deep$lake == lakes[i], ] 
+  td = td %>% drop_na(yr.thermo.depth)
+  ss = trend::sens.slope(td$yr.thermo.depth) #run sens slope fxn
+  ytrends.deep[i,19] =  ss[1]  #sens slope
+  ytrends.deep[i,20] =  ss[3]  #sens p
+  #hypo
+  td = yrpro.deep[yrpro.deep$lake == lakes[i], ] 
+  td = td %>% drop_na(yr.temp.hypo)
+  ss = trend::sens.slope(td$yr.temp.hypo) #run sens slope fxn
+  ytrends.deep[i,21] =  ss[1]  #sens slope
+  ytrends.deep[i,22] =  ss[3]  #sens p
+}
+
+#change per decade
+mean(ytrends.deep$st.sens.slope) * 10
+mean(ytrends.deep$td.sens.slope) * 10
+mean(ytrends.deep$hypo.sens.slope) * 10
+
+
+
+
+
+#quick plots ########
+ytrends.new = ddply(yrprosub.droppedgaps, 
+                    .(lake), 
+                    summarize, 
+                    n.years = length(unique(year)),
+                    first.year = min(year),
+                    n.pro = sum(n.profiles),
+                    temp5m.mean = mean(yr.temp.top5m, na.rm=T),
+                    temp5m.sd = sd(yr.temp.top5m, na.rm=T),
+                    temp5m.min = min(yr.temp.top5m, na.rm=T),
+                    temp5m.max = max(yr.temp.top5m, na.rm=T),
+                    td.mean = mean(yr.thermo.depth, na.rm=T),
+                    td.sd = sd(yr.thermo.depth, na.rm=T),
+                    td.min = min(yr.thermo.depth, na.rm=T),
+                    td.max = max(yr.thermo.depth, na.rm=T),
+                    hypo.mean = mean(yr.thermo.depth, na.rm=T),
+                    hypo.sd = sd(yr.thermo.depth, na.rm=T),
+                    hypo.min = min(yr.thermo.depth, na.rm=T),
+                    hypo.max = max(yr.thermo.depth, na.rm=T),
+                    st.sens.slope = NA,
+                    st.sens.p = NA,
+                    td.sens.slope = NA,
+                    td.sens.p = NA,
+                    hypo.sens.slope = NA,
+                    hypo.sens.p = NA)
+
+lakes = unique(ytrends.new$lake)                
+
+for (i in 1:length(lakes)){ #for every lake
+  #surface temp
+  td = yrprosub.droppedgaps[yrprosub.droppedgaps$lake == lakes[i], ] 
+  td = td %>% drop_na(yr.temp.top5m)
+  ss = trend::sens.slope(td$yr.temp.top5m) #run sens slope fxn
+  ytrends.new[i,17] =  ss[1]  #sens slope
+  ytrends.new[i,18] =  ss[3]  #sens p
+  #thermocline
+  td = yrprosub.droppedgaps[yrprosub.droppedgaps$lake == lakes[i], ] 
+  td = td %>% drop_na(yr.thermo.depth)
+  ss = trend::sens.slope(td$yr.thermo.depth) #run sens slope fxn
+  ytrends.new[i,19] =  ss[1]  #sens slope
+  ytrends.new[i,20] =  ss[3]  #sens p
+  #hypo
+  td = yrprosub.droppedgaps[yrprosub.droppedgaps$lake == lakes[i], ] 
+  td = td %>% drop_na(yr.temp.hypo)
+  ss = trend::sens.slope(td$yr.temp.hypo) #run sens slope fxn
+  ytrends.new[i,21] =  ss[1]  #sens slope
+  ytrends.new[i,22] =  ss[3]  #sens p
+}
+
+
+#split deep and shallow lakes
+md = read.csv('https://raw.githubusercontent.com/mfarragher7/dbCWD/main/db.raw/lakemd.csv', header=T)
+md = md %>% 
+  filter(station==1) %>% 
+  select(lake, depth_m) %>% 
+  set_names(~ str_to_lower(.)) %>% 
+  mutate_all(~ str_to_lower(.)) 
+
+test = join(ytrends.new, md, by='lake')
+str(ytrends.new)
+unique(ytrends.new$depth_m)
+
+
+#surface temp
+ggplot(ytrends.new, aes(x=depth_m, y=st.sens.slope)) +
+  geom_point() +
+  stat_smooth(method = "lm",
+              formula = y ~ x,
+              geom = "smooth")
+
+#thermocline
+ggplot(ytrends.new, aes(x=depth_m, y=td.sens.slope)) +
+  geom_point() +
+  stat_smooth(method = "lm",
+              formula = y ~ x,
+              geom = "smooth")
+
+#hypo
+ggplot(ytrends.new, aes(x=depth_m, y=hypo.sens.slope)) +
+  geom_point() +
+  stat_smooth(method = "lm",
+              formula = y ~ x,
+              geom = "smooth")
+
+
+longboi = ytrends.new %>% 
+  pivot_longer(cols = c(st.sens.slope,
+                      td.sens.slope,
+                      hypo.sens.slope),
+               names_to = 'param',
+               values_to = 'sens')
 
 
 
 
 
 
-
-
-#*monthly hypo shallow ########
-ggplot(mpro.shallow, aes(x=year, y=mm.hypo)) +
-  geom_point(aes(color = lake), shape=1, alpha=0.5) +
-  geom_line(aes(color = lake), stat="smooth", method='loess', size = 0.75,
-            linetype ="solid", alpha = 0.75, show.legend = F)  +
-  geom_line(stat="smooth", method='lm', linewidth = 1,
-            linetype ="solid", alpha = 0.75, show.legend = F, color='black')  +
-  facet_wrap(~mm, ncol=3, nrow=2) +
-  scale_x_continuous(limits=c(1975,2022)) +
-  scale_y_continuous(limits=c(0,25), n.breaks = 6) +
-  #scale_color_manual(values=c('blue','green')) +
-  labs(title='Mean hypolimnion temperature - Monthly -  Shallow lakes (<= 10m)',
-       x="Date",
-       y="Temp C",
-       color='Lake') +
-  guides(color = guide_legend(override.aes = list(shape=19, alpha=1))) +
-  theme_bw() + 
-  theme(title=element_text(size=10),
-        strip.background=element_rect(fill='gray90'))
 
 
 

@@ -143,17 +143,21 @@ eq = ddply(yrprosub.droppedgaps,.(), lm_eqn)
 #change geom_text size
 update_geom_defaults("text", list(size = 5))
 
+
+
+trend::sens.slope(yrprosub.droppedgaps$yr.temp.top5m)
+
 ggplot(yrprosub.droppedgaps, 
        aes(x=year, y=yr.temp.top5m)) +
   geom_point(aes(color = lake), shape=1, alpha=0.5) +
   geom_line(aes(color = lake), stat="smooth", method='loess', linewidth = 0.75,
             linetype ="solid", alpha = 0.75, show.legend = F)  +
-  geom_line(stat="smooth", method='lm', linewidth = 1.25,
-            linetype ="solid", alpha = 0.75, show.legend = F)  +
+ # geom_line(stat="smooth", method='lm', linewidth = 1.25,
+  #          linetype ="solid", alpha = 0.75, show.legend = F)  +
   scale_x_continuous(limits=c(1975,2022)) +
   scale_y_continuous(limits=c(16,26), n.breaks = 6) +
-  geom_text(data=eq,aes(x=1985, y=25.5,label=V1), 
-            parse=T, inherit.aes=F) +
+  #geom_text(data=eq,aes(x=1985, y=25.5,label=V1), 
+   #         parse=T, inherit.aes=F) +
   labs(title='Mean Summer surface temperature trends',
        x="Date",
        y="Temp C",
@@ -708,7 +712,7 @@ ggplot(thermoclinetrends,
             size = 6) + 
   scale_fill_manual(values = c('lightblue','darkblue')) +
   coord_flip() +
-  scale_y_continuous(limits=c(-0.5, 0.5)) +
+  scale_y_continuous(limits=c(-1.2, 0.5)) +
   scale_x_discrete(labels=c("little cobbossee"=expression(bold('little cobbossee')),
                             "wilson"=expression(bold(wilson)),
                             "carlton"=expression(bold(carlton)),
@@ -1488,27 +1492,70 @@ ggplot(longboi, aes(x=depth_m, y=sens)) +
 
 
 
+#compare parameter correlation
 
-ggplot(mmhypo.deep, aes(x=year, y=mm.hypo)) +
-  geom_point(aes(color = lake), shape=1, alpha=0.5) +
-  geom_line(aes(color = lake), stat="smooth", method='loess', size = 0.75,
-            linetype ="solid", alpha = 0.75, show.legend = F)  +
-  geom_line(stat="smooth", method='lm', linewidth = 1.25,
-            linetype ="solid", alpha = 0.75, show.legend = F, color='black')  +
-  geom_text(data=eq,aes(x=1990, y=23,label=V1), 
-            parse=T, inherit.aes=F) +
-  facet_wrap(~mm, ncol=2, nrow=2) +
-  scale_x_continuous(limits=c(1975,2022)) +
-  scale_y_continuous(limits=c(0,25), n.breaks = 6) +
-  #scale_color_manual(values=c('blue','green')) +
-  labs(title='Mean hypolimnion temperature - Monthly -  Deep lakes (>10m)',
-       x="Date",
-       y="Temperature (\u00b0C)",
-       color='Lake') +
-  guides(color = guide_legend(override.aes = list(shape=19, alpha=1))) +
-  theme_bw() + 
-  theme(title=element_text(size=10),
-        strip.background=element_rect(fill='gray90'))
+#surface temp to thermocline depth
+ggplot(ytrends.new, aes(x=st.sens.slope, y=td.sens.slope)) + 
+  geom_point() + 
+  stat_smooth(method = "lm",
+              formula = y ~ x,
+              geom = "smooth") + 
+  labs(title = 'Surface temp and thermocline depth')
+
+#surface temp to hypo temp
+ggplot(ytrends.new, aes(x=st.sens.slope, y=hypo.sens.slope)) + 
+  geom_point() +
+  stat_smooth(method = "lm",
+              formula = y ~ x,
+              geom = "smooth") +
+  labs(title = 'Surface temp and hypolimnion temp')
+
+
+#thermocline depth to hypo temp
+ggplot(ytrends.new, aes(x=td.sens.slope, y=hypo.sens.slope)) + 
+  geom_point() +
+  stat_smooth(method = "lm",
+              formula = y ~ x,
+              geom = "smooth") +
+  labs(title = 'Thermocline depth and hypolimnion temp')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+sum(yrprosub.droppedgaps$n.profiles)
+mean(yrprosub.droppedgaps$n.profiles)
+
+
+profiles = read.csv('https://raw.githubusercontent.com/mfarragher7/dbCWD/main/library/profiles.1975-2022.csv',header=T)
+
+
+ggplot(filter(profiles, lake=='maranacook' & station==1 & date=='2021-08-12'),
+       aes(x=temp, y=depth)) +
+  geom_point() +
+  geom_line(linetype=3) +
+  scale_y_reverse() +
+  labs(title="Maranacook 2021-08-12",
+       x='Temperature \u00b0C',
+       y='Depth (m)') +
+  theme_bw()
+
 
 
 

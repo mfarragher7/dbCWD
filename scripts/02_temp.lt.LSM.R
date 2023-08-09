@@ -269,7 +269,7 @@ ytrends = ytrends %>%
 
 
 #directional change fig
-ggplot(ytrends,
+ggplot(filter(ytrends, n.years >=30),
        aes(reorder(lake, change.per.decade),
            change.per.decade, 
            fill=dir,
@@ -284,7 +284,7 @@ ggplot(ytrends,
             size = 6) + 
   scale_fill_manual(values = c('#37C1E6','#FF8778')) +
   coord_flip() +
-  scale_y_continuous(limits=c(-0.5, 2)) +
+  scale_y_continuous(limits=c(-0.5, 1)) +
   scale_x_discrete(labels=c("annabessacook"=expression(bold(annabessacook)),
                             "cobbossee"=expression(bold(cobbossee)),
                             "cochnewagon"=expression(bold(cochnewagon)),
@@ -299,6 +299,83 @@ ggplot(ytrends,
   theme_bw() + 
   theme(title=element_text(size=10),
         legend.position = "none")
+
+
+
+
+#**** colder lakes ####################
+#looking into the lakes that got colder, allegedly
+
+#jimmy
+cold.jimmy = yrprosub.droppedgaps %>% filter(lake=='jimmy')
+
+
+ggplot(cold.jimmy, 
+       aes(x=year, y=yr.temp.top5m)) +
+  geom_point() +
+  geom_line(stat="smooth", method='loess', linewidth = 0.75,
+            linetype ="solid", alpha = 0.75, show.legend = F)  +
+  scale_x_continuous(limits=c(1975,2022)) +
+  scale_y_continuous(limits=c(16,24), n.breaks = 6) +
+  labs(title='Mean Summer surface temperature trends',
+      x="Date",
+     y="Temp C")
+
+
+
+#buker
+cold.buker = yrprosub.droppedgaps %>% filter(lake=='buker')
+
+ggplot(cold.buker, 
+       aes(x=year, y=yr.temp.top5m)) +
+  geom_point() +
+  geom_line(stat="smooth", method='loess', linewidth = 0.75,
+            linetype ="solid", alpha = 0.75, show.legend = F)  +
+  scale_x_continuous(limits=c(1975,2022)) +
+  scale_y_continuous(limits=c(16,24), n.breaks = 6) +
+  labs(title='Mean Summer surface temperature trends',
+       x="Date",
+       y="Temp C")
+
+#dexter
+cold.dexter = yrprosub.droppedgaps %>% filter(lake=='dexter')
+
+ggplot(cold.dexter, 
+       aes(x=year, y=yr.temp.top5m)) +
+  geom_point() +
+  geom_line(stat="smooth", method='loess', linewidth = 0.75,
+            linetype ="solid", alpha = 0.75, show.legend = F)  +
+  scale_x_continuous(limits=c(1975,2022)) +
+  scale_y_continuous(limits=c(16,24), n.breaks = 6) +
+  labs(title='Mean Summer surface temperature trends',
+       x="Date",
+       y="Temp C")
+
+
+#berry
+cold.berry = yrprosub.droppedgaps %>% filter(lake=='berry')
+
+ggplot(cold.berry, 
+       aes(x=year, y=yr.temp.top5m)) +
+  geom_point() +
+  geom_line(stat="smooth", method='loess', linewidth = 0.75,
+            linetype ="solid", alpha = 0.75, show.legend = F)  +
+  scale_x_continuous(limits=c(1975,2022)) +
+  scale_y_continuous(limits=c(16,24), n.breaks = 6) +
+  labs(title='Mean Summer surface temperature trends',
+       x="Date",
+       y="Temp C")
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -398,8 +475,8 @@ ggplot(monthprosub.droppedsome, aes(x=year, y=mm.temp.top5m)) +
   geom_line(stat="smooth", method='lm', linewidth = 1,
             linetype ="solid", alpha = 0.75, show.legend = F, color='black')  +
   facet_wrap(~mm, ncol=3, nrow=2, scales='fixed') +
-  geom_text(data=eq,aes(x=1998, y=29,label=V1), 
-            parse=T, inherit.aes=F) +
+ # geom_text(data=eq,aes(x=1998, y=29,label=V1), 
+     #       parse=T, inherit.aes=F) +
   scale_x_continuous(limits=c(1975,2022)) +
   scale_y_continuous(limits=c(5,30), n.breaks = 6) +
   labs(title='Mean surface (top 5m) temperature',
@@ -697,7 +774,7 @@ thermoclinetrends = thermoclinetrends %>%
   mutate(sig = ifelse(sens.p < 0.05, 1, 0)) #if significant, 1
 
 #*FIG - thermo sens  ########
-ggplot(thermoclinetrends,
+ggplot(filter(thermoclinetrends, n.years >=30),
        aes(reorder(lake, change.per.decade),
            change.per.decade, 
            fill=dir,
@@ -712,7 +789,7 @@ ggplot(thermoclinetrends,
             size = 6) + 
   scale_fill_manual(values = c('lightblue','darkblue')) +
   coord_flip() +
-  scale_y_continuous(limits=c(-1.2, 0.5)) +
+  scale_y_continuous(limits=c(-0.5, 0.25)) +
   scale_x_discrete(labels=c("little cobbossee"=expression(bold('little cobbossee')),
                             "wilson"=expression(bold(wilson)),
                             "carlton"=expression(bold(carlton)),
@@ -1010,7 +1087,7 @@ hypo.trends = hypo.trends %>%
   mutate(sig = ifelse(sens.p < 0.05, 1, 0)) #if significant, 1
 
 #directional change fig
-ggplot(hypo.trends,
+ggplot(filter(hypo.trends,
        aes(reorder(lake, change.per.decade),
            change.per.decade, 
            fill=dir,

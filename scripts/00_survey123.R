@@ -1,7 +1,18 @@
-#load and format survey123 datasheets to something usable
-#2023-03-03
-#working off jeremy's code
-#no QC or anything happening here, just getting data in same format as other DEP files I read in in other load.R scripts
+####################################################
+#IMPORTANT, please read !!!!
+
+#   I updated this code to save exported dataframes in folder "CWD_2023" 
+#   Full filepath for that is "C:\Users\CWD2-Matt\OneDrive\Database\dbCWD\db.raw\db.cwd\survey123"
+#   After you have exported the excel workbook from Survey123... (into folder ‘OneDrive > Documents > dbCWD > survey123output’)
+#       ....you need to replace the date listed below on line 39 "S123_2023-03-29.xlsx"
+#       ....with the date from the new file (for example, if you exported February 14 your file should be named S123_2024-02-14.xlsx)
+#       ....so then line 39 should read: xlfile = "S123_2024-02-14.xlsx"
+#       ....also change the date the same way for line XXXXX
+#   Great, now you can hold Ctrl+A to highlight this entire script, then hold Ctrl+Enter to run the code!
+
+
+
+
 
 #libraries
 library(readxl)
@@ -204,7 +215,7 @@ colnames(General) = gen_names
 
 #save output in raw df folder
 write.csv(General, 
-          file = paste("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/db.raw/db.cwd/survey123/CWD_2022_GENERAL.csv" , 
+          file = paste("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/db.raw/db.cwd/survey123/CWD_2023_GENERAL.csv" , 
                        sep = ""),
           row.names = FALSE)
 
@@ -234,7 +245,7 @@ colnames(DO_TEMP_PROFILES) = DO_names
 
 #save 
 write.csv(DO_TEMP_PROFILES, 
-          file = paste("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/db.raw/db.cwd/survey123/CWD_2022_DO_TEMP_PROFILES.csv",
+          file = paste("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/db.raw/db.cwd/survey123/CWD_2023/CWD_2023_DO_TEMP_PROFILES.csv",
                        sep = ""),
           row.names = FALSE)
 
@@ -269,7 +280,7 @@ colnames(DO_QC) = DO_QC_names
 
 #save 
 write.csv(DO_QC, 
-          file = paste("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/db.raw/db.cwd/survey123/CWD_2022_DO_QC.csv",
+          file = paste("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/db.raw/db.cwd/survey123/CWD_2023/CWD_2023_DO_QC.csv",
                        sep = ""),
           row.names = FALSE)
 
@@ -297,7 +308,7 @@ TP_Grabs$PHOS = NA
 
 #save
 write.csv(TP_Grabs, 
-          file = paste("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/db.raw/db.cwd/survey123/CWD_2022_TP_Grabs.csv", 
+          file = paste("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/db.raw/db.cwd/survey123/CWD_2023/CWD_2023_TP_Grabs.csv", 
                        sep = ""), 
           row.names = FALSE)
 
@@ -331,7 +342,7 @@ Cyanos$Phc = NA
 
 #save
 write.csv(Cyanos, 
-          file = paste("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/db.raw/db.cwd/survey123/CWD_2022_Cyanos.csv",
+          file = paste("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/db.raw/db.cwd/survey123/CWD_2023/CWD_2023_Cyanos.csv",
                        sep = ""), 
           row.names = FALSE)
 
@@ -365,7 +376,7 @@ colnames(Chem) = chem_names
 
 #save
 write.csv(Chem, 
-          file =paste("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/db.raw/db.cwd/survey123/CWD_2022_Chem.csv", 
+          file =paste("C:/Users/CWD2-Matt/OneDrive/Database/dbCWD/db.raw/db.cwd/survey123/CWD_2023/CWD_2023_Chem.csv", 
                       sep = ""), 
           row.names = FALSE)
 
